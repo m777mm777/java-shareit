@@ -30,7 +30,7 @@ public class ItemServiceImpl implements Itemservice {
         item.setId(itemId);
         item.setOwner(userOwnerId);
         Item itemOld = itemStorage.findById(itemId);
-        if (item.getOwner() != itemOld.getOwner()) {
+        if (!item.getOwner().equals(itemOld.getOwner())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
         }
         return itemStorage.update(item);
