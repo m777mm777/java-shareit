@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class ItemDbStorage implements ItemStorage {
 
     private Map<Long, Item> storage = new HashMap<>();
-
     private Long id = 0L;
 
     @Override
