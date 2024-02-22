@@ -65,7 +65,7 @@ public class UserDbStorage implements UserStorage {
     private void checkEmail(User user) {
         if (user.getEmail() != null) {
             for (User userBeingChecked : storage.values()) {
-                if ((user.getEmail().equals(userBeingChecked.getEmail())) & (!user.getId().equals(userBeingChecked.getId()))) {
+                if ((user.getEmail().equals(userBeingChecked.getEmail())) && (!user.getId().equals(userBeingChecked.getId()))) {
                     throw new ErrorResponse("Такой email уже есть");
                 }
             }
