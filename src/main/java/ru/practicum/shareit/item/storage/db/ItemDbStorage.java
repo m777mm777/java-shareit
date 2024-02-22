@@ -51,8 +51,8 @@ public class ItemDbStorage implements ItemStorage {
         List<Item> items = storage.values().stream()
                 .filter(e -> (e.getName()
                         .toUpperCase()
-                        .matches(".*" + text.toUpperCase() + ".*") | e.getDescription()
-                        .toUpperCase().matches(".*" + text.toUpperCase() + ".*")) & e.getAvailable().equals(true))
+                        .matches(".*" + text.toUpperCase() + ".*") || e.getDescription()
+                        .toUpperCase().matches(".*" + text.toUpperCase() + ".*")) && e.getAvailable().equals(true))
                 .collect(Collectors.toList());
 
         return items;
