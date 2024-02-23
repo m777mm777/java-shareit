@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ErrorHandler {
     @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorMessage> handleValidationException(final ValidationException e) {
-        log.info(e.getMessage());
+        log.debug("Получен статус 400 Not found {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorMessage(e.getMessage()));
@@ -21,7 +21,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFoundException(final ResourceNotFoundException e) {
-        log.info(e.getMessage());
+        log.debug("Получен статус 404 Not found {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorMessage(e.getMessage()));
@@ -29,10 +29,17 @@ public class ErrorHandler {
 
     @ExceptionHandler(ErrorResponse.class)
     public ResponseEntity<ErrorMessage> errorResponse(final ErrorResponse e) {
-        log.info(e.getMessage());
+        log.debug("Получен статус 500 Not found {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));
     }
 
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<ErrorMessage> unknownException(final Throwable e) {
+        log.debug("Получен статус 500 Not found {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorMessage(e.getMessage()));
+    }
 }

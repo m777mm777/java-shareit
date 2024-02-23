@@ -7,12 +7,11 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ItemServiceImpl implements Itemservice {
+public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage itemStorage;
     private final UserService userService;
@@ -29,7 +28,7 @@ public class ItemServiceImpl implements Itemservice {
         userService.findById(userOwnerId);
         item.setId(itemId);
         item.setOwner(userOwnerId);
-        Item itemOld = itemStorage.findById(itemId);
+        Item itemOld = findById(itemId);
         if (!item.getOwner().equals(itemOld.getOwner())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
         }
@@ -38,7 +37,8 @@ public class ItemServiceImpl implements Itemservice {
 
     @Override
     public Item findById(Long itemId) {
-        return itemStorage.findById(itemId);
+        return itemStorage.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
     }
 
     @Override
@@ -49,8 +49,8 @@ public class ItemServiceImpl implements Itemservice {
 
     @Override
     public List<Item> searchItem(String text) {
-        if (text.equals(null)) {
-            return new ArrayList<Item>();
+        if (text.isBlank()) {
+            return List.of();
         }
         return itemStorage.searchItem(text);
     }

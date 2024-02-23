@@ -7,7 +7,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +28,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        return Optional.of(userStorage.findById(id))
-                .orElseThrow(() -> new ResourceNotFoundException("Не найден пользователь"));
-
+        return userStorage.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
     }
 
     @Override

@@ -6,10 +6,7 @@ import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class UserDbStorage implements UserStorage {
@@ -38,11 +35,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         if (!storage.containsKey(id)) {
-            throw new ResourceNotFoundException("Такого пользователя нет");
+            throw new ResourceNotFoundException("Нет такого пользователя");
         }
-        return storage.get(id);
+        return Optional.of(storage.get(id));
     }
 
     @Override
@@ -75,11 +72,11 @@ public class UserDbStorage implements UserStorage {
     private User toInclude(User user) {
         User oldUser = storage.get(user.getId());
 
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(oldUser.getName());
         }
 
-        if (user.getEmail() == null) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
             user.setEmail(oldUser.getEmail());
         }
 

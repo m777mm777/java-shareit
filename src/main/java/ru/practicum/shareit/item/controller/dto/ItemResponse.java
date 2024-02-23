@@ -4,7 +4,6 @@ package ru.practicum.shareit.item.controller.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.request.ItemRequest;
 
 @Data
 @Builder
@@ -20,6 +19,4 @@ public class ItemResponse {
     private Boolean available;
 
     private Long owner;
-
-    private ItemRequest request;
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.controller.dto.UserCreateRequest;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
@@ -9,7 +10,6 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -22,7 +22,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping
-    public UserResponse create(@Valid @RequestBody UserCreateRequest request) {
+    public UserResponse create(@Validated(Create.class) @RequestBody UserCreateRequest request) {
         User user = userMapper.toUser(request);
         User modified = userService.create(user);
         log.info("create User {}", request);
@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserResponse update(@RequestBody UserCreateRequest request, @PathVariable Long id) {
+    public UserResponse update(@Validated(Update.class) @RequestBody UserCreateRequest request, @PathVariable Long id) {
         User user = userMapper.toUser(request);
         User modified = userService.update(user, id);
         log.info("update User {} id {}", request, id);
