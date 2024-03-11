@@ -17,7 +17,6 @@ public class UserCreateRequest {
     private String name;
 
     @NotEmpty(groups = {Create.class})
-    @Email(groups = {Create.class})
-    @Email(groups = {Update.class})
+    @Email(groups = {Create.class, Update.class})
     private String email;
 }

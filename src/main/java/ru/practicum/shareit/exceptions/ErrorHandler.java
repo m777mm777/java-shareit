@@ -27,14 +27,6 @@ public class ErrorHandler {
                 .body(new ErrorMessage(e.getMessage()));
     }
 
-    @ExceptionHandler(ErrorResponse.class)
-    public ResponseEntity<ErrorMessage> errorResponse(final ErrorResponse e) {
-        log.debug("Получен статус 500 Not found {}", e.getMessage(), e);
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorMessage(e.getMessage()));
-    }
-
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorMessage> unknownException(final Throwable e) {
         log.debug("Получен статус 500 Not found {}", e.getMessage(), e);
