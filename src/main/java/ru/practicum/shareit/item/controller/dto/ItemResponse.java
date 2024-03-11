@@ -1,12 +1,15 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.controller.dto;
 
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.request.ItemRequest;
 
 @Data
 @Builder
-public class Item {
+@AllArgsConstructor
+public class ItemResponse {
+
     private Long id;
 
     private String name;
@@ -16,7 +19,4 @@ public class Item {
     private Boolean available;
 
     private Long owner;
-
-    private ItemRequest request;
-
 }
