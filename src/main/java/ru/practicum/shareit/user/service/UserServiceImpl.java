@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -12,34 +12,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
     public User create(User user) {
-        return userStorage.create(user);
+        return userRepository.save(user);
     }
 
     @Override
     public User update(User user, Long id) {
         findById(id);
         user.setId(id);
-        return userStorage.update(user);
+        return userRepository.update(user);
     }
 
     @Override
     public User findById(Long id) {
-        return userStorage.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
     }
 
     @Override
     public List<User> getAll() {
-        return userStorage.getAll();
+        return userRepository.findAll();
     }
 
     @Override
     public Long removeById(Long id) {
         findById(id);
-        return userStorage.removeById(id);
+        userRepository.deleteById(id);
+         return id;
     }
 }
