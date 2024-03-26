@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Бронь не доступна");
         }
 
-        if (item.getOwner() == bookerId) {
+        if (item.getOwner().equals(bookerId)) {
             throw new ResourceNotFoundException("Нельзя бронировать свое");
         }
 
