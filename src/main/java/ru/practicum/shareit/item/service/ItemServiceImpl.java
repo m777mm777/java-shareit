@@ -100,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(groupingBy(Comment::getItem, toList()));
 
         for (ItemResponse i: responseItems) {
-            List<Comment> commentsById = comments.get(i.getId());
+            List<Comment> commentsById = comments.get(i);
             List<CommentResponse> commentResponses = commentMapper.toResponseCollection(commentsById);
             i.setComments(commentResponses);
             toAssemble(i.getId(), userOwnerId, i);
