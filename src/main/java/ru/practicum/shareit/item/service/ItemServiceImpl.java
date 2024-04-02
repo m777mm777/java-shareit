@@ -21,6 +21,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -93,17 +94,19 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemResponse> getAllItemsByOwner(Long userOwnerId) {
         userService.findById(userOwnerId);
         List<Item> items =  itemRepository.findByOwnerOrderByIdAsc(userOwnerId);
-        List<ItemResponse> responseItems = itemMapper.toResponseCollection(items);
+        List<ItemResponse> responseItems = new ArrayList<>();
 
         Map<Item, List<Comment>> comments = commentRepository.findByItemId(userOwnerId)
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
 
-        for (ItemResponse i: responseItems) {
-            List<Comment> commentsById = comments.get(i);
+        for (Item item: items) {
+            List<Comment> commentsById = comments.get(item);
             List<CommentResponse> commentResponses = commentMapper.toResponseCollection(commentsById);
-            i.setComments(commentResponses);
-            toAssemble(i.getId(), userOwnerId, i);
+            ItemResponse itemResponse = itemMapper.toResponse(item);
+            itemResponse.setComments(commentResponses);
+            toAssemble(itemResponse.getId(), userOwnerId, itemResponse);
+            responseItems.add(itemResponse);
         }
         return responseItems;
     }
