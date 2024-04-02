@@ -17,7 +17,7 @@ public interface ItemService {
 
     public Item getItemById(Long itemId);
 
-    public List<ItemResponse> getAll(Long userOwnerId);
+    public List<ItemResponse> getAllItemsByOwner(Long userOwnerId);
 
     public List<Item> searchItem(String text);
 

@@ -1,19 +1,16 @@
 package ru.practicum.shareit.item.controller.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
+import javax.validation.constraints.Size;
 
-@Data
+@Getter
+@RequiredArgsConstructor
 public class CommentCreateRequest {
 
-    private Long id;
-
+    @Size(max = 255)
     @NotBlank
     private String text;
-
-    private String authorName;
-
-    private LocalDateTime created;
 }

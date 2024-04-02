@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -15,33 +15,36 @@ import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentRepository;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.repository.CommentJpaRepository;
+import ru.practicum.shareit.item.repository.ItemJpaRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepository itemRepository;
+    private final ItemJpaRepository itemRepository;
     private final UserService userService;
-    private final BookingRepository bookingRepository;
+    private final BookingJpaRepository bookingRepository;
     private final ItemMapper itemMapper;
     private final BookingMapper bookingMapper;
-    private final CommentRepository commentRepository;
+    private final CommentJpaRepository commentRepository;
     private final CommentMapper commentMapper;
 
     @Override
     public Item createItem(Long userOwnerId, Item item) {
         userService.findById(userOwnerId);
         item.setOwner(userOwnerId);
-        return itemRepository.createItem(item);
+        return itemRepository.save(item);
     }
 
     @Override
@@ -53,7 +56,22 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwner().equals(itemOld.getOwner())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
         }
-        return itemRepository.update(item);
+
+        if ((item.getName() == null) || item.getName().isBlank()) {
+            item.setName(itemOld.getName());
+        }
+
+        if (item.getDescription() == null || item.getDescription().isBlank()) {
+            item.setDescription(itemOld.getDescription());
+        }
+
+        if (item.getAvailable() == null) {
+            item.setAvailable(itemOld.getAvailable());
+        }
+
+        item.setOwner(itemOld.getOwner());
+
+        return itemRepository.save(item);
     }
 
     @Override
@@ -72,13 +90,18 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponse> getAll(Long userOwnerId) {
+    public List<ItemResponse> getAllItemsByOwner(Long userOwnerId) {
         userService.findById(userOwnerId);
-        List<Item> items =  itemRepository.getAll(userOwnerId);
+        List<Item> items =  itemRepository.findByOwnerOrderByIdAsc(userOwnerId);
         List<ItemResponse> responseItems = itemMapper.toResponseCollection(items);
+
+        Map<Item, List<Comment>> comments = commentRepository.findByItemId(userOwnerId)
+                .stream()
+                .collect(groupingBy(Comment::getItem, toList()));
+
         for (ItemResponse i: responseItems) {
-            List<Comment> comments = commentRepository.findByItemId(i.getId());
-            List<CommentResponse> commentResponses = commentMapper.toResponseCollection(comments);
+            List<Comment> commentsById = comments.get(i.getId());
+            List<CommentResponse> commentResponses = commentMapper.toResponseCollection(commentsById);
             i.setComments(commentResponses);
             toAssemble(i.getId(), userOwnerId, i);
         }
@@ -90,6 +113,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return List.of();
         }
+
         return itemRepository.searchItem(text);
     }
 
@@ -118,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest request) {
         List<Booking> bookings = bookingRepository.findByItemIdAndBookerId(itemId, authorId).stream()
-                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now())).collect(Collectors.toList());
+                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now())).collect(toList());
         if (bookings.isEmpty()) {
             throw new ValidationException("Вы не можете оставить отзыв");
         }
@@ -130,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
         User author = userService.findById(authorId);
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
-        commentRepository.createComment(comment);
+        commentRepository.save(comment);
 
         CommentResponse commentResponse = commentMapper.toResponse(comment);
         ItemResponse itemResponse = itemMapper.toResponse(item);

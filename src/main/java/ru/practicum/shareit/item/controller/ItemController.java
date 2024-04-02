@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.controller.constants.Constants;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
@@ -11,9 +12,10 @@ import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.controller.Create;
+import ru.practicum.shareit.user.controller.Update;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -27,7 +29,7 @@ public class ItemController {
 
     @PostMapping
     public ItemResponse create(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId,
-                               @Valid @RequestBody ItemCreateRequest request) {
+                               @Validated(Create.class) @RequestBody ItemCreateRequest request) {
         Item item = itemMapper.toItem(request);
         Item modified = itemService.createItem(userOwnerId, item);
         log.info("Create userOwnerId {} Item {}", userOwnerId, request);
@@ -36,7 +38,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemResponse update(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId,
-                               @RequestBody ItemCreateRequest request,
+                               @Validated(Update.class) @RequestBody ItemCreateRequest request,
                                @PathVariable Long itemId) {
         Item item = itemMapper.toItem(request);
         Item modified = itemService.update(userOwnerId, itemId, item);
@@ -54,7 +56,7 @@ public class ItemController {
 
     @GetMapping()
     public List<ItemResponse> getAll(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId) {
-        List<ItemResponse> items = itemService.getAll(userOwnerId);
+        List<ItemResponse> items = itemService.getAllItemsByOwner(userOwnerId);
         log.info("getAll userOwnerId {}", userOwnerId);
         return items;
     }
@@ -68,9 +70,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentResponse createComment(@RequestHeader(Constants.RESPONSEHEADER) @NotNull Long authorId,
+    public CommentResponse createComment(@RequestHeader(Constants.RESPONSEHEADER) Long authorId,
                                          @PathVariable("itemId") Long itemId,
-                                         @RequestBody @NotNull @Valid CommentCreateRequest request) {
+                                         @RequestBody @Valid CommentCreateRequest request) {
         log.info("CreateComment authorId {} itemId {} request {}", authorId, itemId, request);
         return itemService.createComment(authorId, itemId, request);
     }

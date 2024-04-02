@@ -1,14 +1,16 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
-@Data
+@RequiredArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "items")
-@NoArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +24,7 @@ public class Item {
 
     private Boolean available;
 
+    @Column(name = "owner", nullable = false)
     private Long owner;
 
 }
