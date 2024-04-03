@@ -55,7 +55,7 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<ItemResponse> getAll(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId) {
+    public List<ItemResponse> getAllByOwner(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId) {
         List<ItemResponse> items = itemService.getAllItemsByOwner(userOwnerId);
         log.info("getAll userOwnerId {}", userOwnerId);
         return items;

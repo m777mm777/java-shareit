@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BookingCreateRequest {
 
+    @NotNull
     private Long itemId;
 
     @NotNull

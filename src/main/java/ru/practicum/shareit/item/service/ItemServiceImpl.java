@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
@@ -40,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingMapper bookingMapper;
     private final CommentJpaRepository commentRepository;
     private final CommentMapper commentMapper;
+    private static final Sort SORT_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public Item createItem(Long userOwnerId, Item item) {
@@ -85,7 +87,10 @@ public class ItemServiceImpl implements ItemService {
 
         ItemResponse itemResponse = itemMapper.toResponse(item);
         itemResponse.setComments(commentResponses);
-        toAssemble(itemId, ownerId, itemResponse);
+
+        List<Booking> bookings = bookingRepository.findByItemIdAndItemOwner(itemId, ownerId);
+
+        toAssemble(bookings, itemResponse);
 
         return itemResponse;
     }
@@ -100,12 +105,16 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
 
+        Map<Item, List<Booking>> bookings = bookingRepository.findByItemOwner(userOwnerId, SORT_START_DESC)
+                .stream()
+                .collect(groupingBy(Booking::getItem, toList()));
+
         for (Item item: items) {
             List<Comment> commentsById = comments.get(item);
             List<CommentResponse> commentResponses = commentMapper.toResponseCollection(commentsById);
             ItemResponse itemResponse = itemMapper.toResponse(item);
             itemResponse.setComments(commentResponses);
-            toAssemble(itemResponse.getId(), userOwnerId, itemResponse);
+            toAssemble(bookings.get(item), itemResponse);
             responseItems.add(itemResponse);
         }
         return responseItems;
@@ -126,8 +135,11 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
     }
 
-    private void toAssemble(Long itemId, Long ownerId, ItemResponse itemResponse) {
-        List<Booking> bookings = bookingRepository.findByItemIdAndItemOwner(itemId, ownerId);
+    private void toAssemble(List<Booking> bookings, ItemResponse itemResponse) {
+
+        if (bookings == null) {
+            return;
+        }
 
         bookings.stream()
                 .filter(t -> t.getStart().isBefore(LocalDateTime.now()) && !t.getStatus().equals(StatusBooking.REJECTED))
@@ -138,15 +150,13 @@ public class ItemServiceImpl implements ItemService {
                 .min(Comparator.comparing(Booking::getStart))
                 .ifPresent(nextBooking -> itemResponse.setNextBooking(bookingMapper.toInformation(nextBooking, nextBooking.getBooker().getId())));
 
-        List<Comment> comments = commentRepository.findByItemId(itemId);
-        itemResponse.setComments(commentMapper.toResponseCollection(comments));
     }
 
     @Override
     public CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest request) {
-        List<Booking> bookings = bookingRepository.findByItemIdAndBookerId(itemId, authorId).stream()
-                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now())).collect(toList());
-        if (bookings.isEmpty()) {
+        boolean completedBooking = bookingRepository.existsByItemIdAndBookerIdAndEndBefore(itemId, authorId, LocalDateTime.now());
+
+        if (!completedBooking) {
             throw new ValidationException("Вы не можете оставить отзыв");
         }
         Comment comment = commentMapper.toComment(request);

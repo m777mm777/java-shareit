@@ -15,11 +15,9 @@ import java.util.List;
 public interface BookingMapper {
 
     Booking toBooking(BookingCreateRequest request);
-//= "java(simpleService.enrichName(source.getName()))")
 
     @Mapping(target = "item", expression = "java(itemResponse)")
     @Mapping(target = "booker", expression = "java(userResponse)")
-//    @Mapping(target = "id", expression = "java(booking.id)")
     @Mapping(target = "id", source = "booking.id")
     BookingResponse toResponse(Booking booking, ItemResponse itemResponse, UserResponse userResponse);
 

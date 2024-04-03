@@ -25,6 +25,7 @@ public class Item {
     private Boolean available;
 
     @Column(name = "owner", nullable = false)
+    @JoinColumn(name = "owner", referencedColumnName = "id")
     private Long owner;
 
 }

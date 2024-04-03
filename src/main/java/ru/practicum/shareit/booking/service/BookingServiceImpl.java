@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
+import ru.practicum.shareit.booking.constants.State;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.model.Booking;
@@ -81,23 +82,23 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings;
 
-        switch (status) {
-            case "CURRENT":
+        switch (checkState(status)) {
+            case CURRENT:
                 bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "PAST":
+            case PAST:
                 bookings = repository.findByBookerIdAndEndBefore(bookerId, LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = repository.findByBookerIdAndStartAfter(bookerId, LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.WAITING, SORT_START_DESC);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.REJECTED, SORT_START_DESC);
                 break;
-            case "ALL":
+            case ALL:
                 bookings = repository.findByBookerId(bookerId, SORT_START_DESC);
                 break;
             default:
@@ -111,23 +112,23 @@ public class BookingServiceImpl implements BookingService {
         userService.findById(ownerId);
         List<Booking> bookings;
 
-        switch (status) {
-            case "CURRENT":
+        switch (checkState(status)) {
+            case CURRENT:
                 bookings = repository.findByItemOwnerAndStartBeforeAndEndAfter(ownerId, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "PAST":
+            case PAST:
                 bookings = repository.findByItemOwnerAndEndBefore(ownerId, LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = repository.findByItemOwnerAndStartAfter(ownerId, LocalDateTime.now(), SORT_START_DESC);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = repository.findByItemOwnerAndStatus(ownerId, StatusBooking.WAITING, SORT_START_DESC);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = repository.findByItemOwnerAndStatus(ownerId, StatusBooking.REJECTED, SORT_START_DESC);
                 break;
-            case "ALL":
+            case ALL:
                 bookings = repository.findByItemOwner(ownerId, SORT_START_DESC);
                 break;
             default:
@@ -135,4 +136,16 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookings;
     }
+
+    private State checkState(String status) {
+        State state;
+
+        try {
+            state = State.valueOf(status);
+        } catch (Exception e) {
+            throw new ResourceServerError("Unknown state: " + status);
+        }
+        return state;
+    }
+
 }

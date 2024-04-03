@@ -17,10 +17,7 @@ public class CommentMapper {
         }
 
         Comment comment = new Comment();
-
-//        comment.setId(request.getId());
         comment.setText(request.getText());
-//        comment.setCreated(request.getCreated());
 
         return comment;
     }
