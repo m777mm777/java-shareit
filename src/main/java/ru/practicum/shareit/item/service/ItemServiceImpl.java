@@ -45,16 +45,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item createItem(Long userOwnerId, Item item) {
-        userService.findById(userOwnerId);
-        item.setOwner(userOwnerId);
+        User user = userService.findById(userOwnerId);
+        item.setOwner(user);
         return itemRepository.save(item);
     }
 
     @Override
     public Item update(Long userOwnerId, Long itemId, Item item) {
-        userService.findById(userOwnerId);
+        User user = userService.findById(userOwnerId);
         item.setId(itemId);
-        item.setOwner(userOwnerId);
+        item.setOwner(user);
         Item itemOld = getItemById(itemId);
         if (!item.getOwner().equals(itemOld.getOwner())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
@@ -82,30 +82,32 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
 
+        User owner = userService.findById(ownerId);
+
         List<Comment> comments = commentRepository.findByItemId(itemId);
         List<CommentResponse> commentResponses = commentMapper.toResponseCollection(comments);
 
         ItemResponse itemResponse = itemMapper.toResponse(item);
         itemResponse.setComments(commentResponses);
 
-        List<Booking> bookings = bookingRepository.findByItemIdAndItemOwner(itemId, ownerId);
+        List<Booking> bookings = bookingRepository.findByItemIdAndItemOwnerAndStatusNot(itemId, owner, StatusBooking.REJECTED);
 
-        toAssemble(bookings, itemResponse);
+        toAssemble(bookings, itemResponse, LocalDateTime.now());
 
         return itemResponse;
     }
 
     @Override
     public List<ItemResponse> getAllItemsByOwner(Long userOwnerId) {
-        userService.findById(userOwnerId);
-        List<Item> items =  itemRepository.findByOwnerOrderByIdAsc(userOwnerId);
+        User owner = userService.findById(userOwnerId);
+        List<Item> items =  itemRepository.findByOwnerOrderByIdAsc(owner);
         List<ItemResponse> responseItems = new ArrayList<>();
 
         Map<Item, List<Comment>> comments = commentRepository.findByItemId(userOwnerId)
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
-
-        Map<Item, List<Booking>> bookings = bookingRepository.findByItemOwner(userOwnerId, SORT_START_DESC)
+//        bookingRepository.findByItemOwner(userOwnerId, SORT_START_DESC)
+        Map<Item, List<Booking>> bookings = bookingRepository.findByItemOwnerAndStatusNot(owner, StatusBooking.REJECTED, SORT_START_DESC)
                 .stream()
                 .collect(groupingBy(Booking::getItem, toList()));
 
@@ -114,7 +116,7 @@ public class ItemServiceImpl implements ItemService {
             List<CommentResponse> commentResponses = commentMapper.toResponseCollection(commentsById);
             ItemResponse itemResponse = itemMapper.toResponse(item);
             itemResponse.setComments(commentResponses);
-            toAssemble(bookings.get(item), itemResponse);
+            toAssemble(bookings.get(item), itemResponse, LocalDateTime.now());
             responseItems.add(itemResponse);
         }
         return responseItems;
@@ -135,18 +137,18 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
     }
 
-    private void toAssemble(List<Booking> bookings, ItemResponse itemResponse) {
+    private void toAssemble(List<Booking> bookings, ItemResponse itemResponse, LocalDateTime now) {
 
         if (bookings == null) {
             return;
         }
 
         bookings.stream()
-                .filter(t -> t.getStart().isBefore(LocalDateTime.now()) && !t.getStatus().equals(StatusBooking.REJECTED))
+                .filter(t -> !t.getStart().isAfter(now))
                 .max(Comparator.comparing(Booking::getEnd))
                 .ifPresent(lastBooking -> itemResponse.setLastBooking(bookingMapper.toInformation(lastBooking, lastBooking.getBooker().getId())));
         bookings.stream()
-                .filter(t -> t.getStart().isAfter(LocalDateTime.now()) && !t.getStatus().equals(StatusBooking.REJECTED))
+                .filter(t -> t.getStart().isAfter(now))
                 .min(Comparator.comparing(Booking::getStart))
                 .ifPresent(nextBooking -> itemResponse.setNextBooking(bookingMapper.toInformation(nextBooking, nextBooking.getBooker().getId())));
 

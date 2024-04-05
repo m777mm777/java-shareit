@@ -80,7 +80,7 @@ public class ItemDbStorage implements ItemStorage {
     }
 
     private void putUserItemIndex(Item item) {
-        final List<Item> items = userItemIndex.computeIfAbsent(item.getOwner(), k -> new ArrayList<>());
+        final List<Item> items = userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
         if (items.size() == 0) {
             items.add(item);
             userItemIndex.put(item.getId(), items);

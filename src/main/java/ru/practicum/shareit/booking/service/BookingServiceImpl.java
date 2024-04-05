@@ -14,6 +14,7 @@ import ru.practicum.shareit.exceptions.ResourceServerError;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Бронь не доступна");
         }
 
-        if (item.getOwner().equals(bookerId)) {
+        if (item.getOwner().getId().equals(bookerId)) {
             throw new ResourceNotFoundException("Нельзя бронировать свое");
         }
 
@@ -49,7 +50,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking updateStatus(Long ownerId, Long bookingId, Boolean status) {
-        Booking booking = repository.findByIdAndItemOwner(bookingId, ownerId)
+        User owner = userService.findById(ownerId);
+        Booking booking = repository.findByIdAndItemOwner(bookingId, owner)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого бронирования нет"));
 
         if (booking.getStatus() == StatusBooking.APPROVED) {
@@ -67,7 +69,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking getStatus(Long userId, Long bookingId) {
-        return repository.findByIdAndBookerIdAndItemOwner(bookingId, userId)
+        User user = userService.findById(userId);
+        return repository.findByIdAndBookerIdAndItemOwner(bookingId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Такого бронирования нет"));
     }
 
@@ -109,27 +112,27 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getBookingsByOwner(Long ownerId, String status) {
-        userService.findById(ownerId);
+        User owner = userService.findById(ownerId);
         List<Booking> bookings;
 
         switch (checkState(status)) {
             case CURRENT:
-                bookings = repository.findByItemOwnerAndStartBeforeAndEndAfter(ownerId, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStartBeforeAndEndAfter(owner, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
                 break;
             case PAST:
-                bookings = repository.findByItemOwnerAndEndBefore(ownerId, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndEndBefore(owner, LocalDateTime.now(), SORT_START_DESC);
                 break;
             case FUTURE:
-                bookings = repository.findByItemOwnerAndStartAfter(ownerId, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStartAfter(owner, LocalDateTime.now(), SORT_START_DESC);
                 break;
             case WAITING:
-                bookings = repository.findByItemOwnerAndStatus(ownerId, StatusBooking.WAITING, SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.WAITING, SORT_START_DESC);
                 break;
             case REJECTED:
-                bookings = repository.findByItemOwnerAndStatus(ownerId, StatusBooking.REJECTED, SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.REJECTED, SORT_START_DESC);
                 break;
             case ALL:
-                bookings = repository.findByItemOwner(ownerId, SORT_START_DESC);
+                bookings = repository.findByItemOwner(owner, SORT_START_DESC);
                 break;
             default:
                 throw new ResourceServerError("Unknown state: " + status);

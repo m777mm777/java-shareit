@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 
@@ -24,8 +25,12 @@ public class Item {
 
     private Boolean available;
 
-    @Column(name = "owner", nullable = false)
+//    @Column(name = "owner", nullable = false)
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "owner", referencedColumnName = "id")
-    private Long owner;
+//    @JoinColumn(name = "owner", referencedColumnName = "id")
+//    @OneToOne ToOne(cascade = CascadeType.ALL)
+    private User owner;
 
 }
