@@ -1,18 +1,54 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
-public interface ItemMapper {
+@Service
+public class ItemMapper {
 
-    Item toItem(ItemCreateRequest request);
+    public List<ItemResponse> toResponseCollection(List<Item> items) {
 
-    ItemResponse toResponse(Item item);
+        List<ItemResponse> itemResponses = new ArrayList<>();
 
-    List<ItemResponse> toResponseCollection(List<Item> items);
+        for (Item item: items) {
+            ItemResponse itemResponse = toResponse(item);
+            itemResponses.add(itemResponse);
+        }
+
+        return itemResponses;
+    }
+
+    public Item toItem(ItemCreateRequest request) {
+        if (request == null) {
+            return null;
+        } else {
+            Item item = new Item();
+            item.setName(request.getName());
+            item.setDescription(request.getDescription());
+            item.setAvailable(request.getAvailable());
+            return item;
+        }
+    }
+
+    public ItemResponse toResponse(Item item) {
+        if (item == null) {
+            return null;
+        } else {
+            ItemResponse.ItemResponseBuilder itemResponse = ItemResponse.builder();
+            if (item != null) {
+                itemResponse.id(item.getId());
+                itemResponse.name(item.getName());
+                itemResponse.description(item.getDescription());
+                itemResponse.available(item.getAvailable());
+                itemResponse.owner(item.getOwner().getId());
+            }
+
+            return itemResponse.build();
+        }
+    }
 }
