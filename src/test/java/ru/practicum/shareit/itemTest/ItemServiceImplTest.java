@@ -171,19 +171,22 @@ public class ItemServiceImplTest {
     @Test
     public void updateTest() {
 
-        Item itemUpdate = item;
-        itemUpdate.setName("Обновленная отвертка");
-        itemUpdate.setDescription("Самая обновленная отвертка");
+//        Item itemUpdate = item;
+        Item itemUpdate = new Item();
+        itemUpdate.setId(1L);
+
+        itemUpdate.setOwner(user);
+        itemUpdate.setQuestion(question);
 
         when(userService.findById(anyLong())).thenReturn(user);
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-        when(itemRepository.save(item)).thenReturn(itemUpdate);
+        when(itemRepository.save(itemUpdate)).thenReturn(item);
 
-        Item item1 = itemServiceImpl.update(user.getId(), item.getId(), item);
+        Item item1 = itemServiceImpl.update(user.getId(), item.getId(), itemUpdate);
 
-        assertEquals("Обновленная отвертка", item1.getName());
+        assertEquals("Отвертка", item1.getName());
     }
 
     @Test
