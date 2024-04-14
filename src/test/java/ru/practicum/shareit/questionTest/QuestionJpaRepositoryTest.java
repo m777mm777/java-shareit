@@ -19,7 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class QuestionJpaRepositoryTest {
 
     @Autowired
@@ -62,20 +61,23 @@ public class QuestionJpaRepositoryTest {
     }
 
     @Test
-    @Order(1)
     public void findByCreatorIdTest() {
 
-        List<Question> questions = questionJpaRepository.findByCreatorId(1L, SORT_CREATED_DESC);
+        List<Question> questions = questionJpaRepository.findByCreatorId(user.getId(), SORT_CREATED_DESC);
 
         assertEquals(1, questions.size());
         assertEquals("Нужна любая отвертка", questions.get(0).getDescription());
     }
 
     @Test
-    @Order(2)
     public void findByCreatorIdNotTest() {
 
-        List<Question> questions = questionJpaRepository.findByCreatorIdNot(1L, page).getContent();
+        User user1 = new User();
+        user1.setName("name");
+        user1.setEmail("44@mail.ru");
+        user1 = userJpaRepository.save(user1);
+
+        List<Question> questions = questionJpaRepository.findByCreatorIdNot(user1.getId(), page).getContent();
 
         assertEquals(1, questions.size());
         assertEquals("Нужна любая отвертка", questions.get(0).getDescription());
