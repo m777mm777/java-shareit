@@ -10,6 +10,8 @@ import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -169,9 +172,8 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void updateTest() {
+    public void updateTestPositive() {
 
-//        Item itemUpdate = item;
         Item itemUpdate = new Item();
         itemUpdate.setId(1L);
 
@@ -187,6 +189,25 @@ public class ItemServiceImplTest {
         Item item1 = itemServiceImpl.update(user.getId(), item.getId(), itemUpdate);
 
         assertEquals("Отвертка", item1.getName());
+    }
+
+    @Test
+    public void updateTestNegativ() {
+
+        Item itemUpdate = new Item();
+        itemUpdate.setId(1L);
+
+        itemUpdate.setOwner(user);
+        itemUpdate.setQuestion(question);
+
+        when(userService.findById(anyLong())).thenReturn(user);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> itemServiceImpl.update(2L, item.getId(), itemUpdate));
+
+        assertEquals("Item этому пользователю не принадлежит", exception.getMessage());
     }
 
     @Test
@@ -213,7 +234,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void getAllItemsByOwnerTest() {
+    public void getAllItemsByOwnerTestPositive() {
 
         when(userService.findById(anyLong())).thenReturn(user);
 
@@ -240,7 +261,16 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void searchItemTest() {
+    public void getAllItemsByOwnerTestNegative() {
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> itemServiceImpl.getAllItemsByOwner(1L, -1, 10));
+
+        assertEquals("Отрицательные значения страниц", exception.getMessage());
+    }
+
+    @Test
+    public void searchItemTestPositive() {
 
         when(userService.findById(anyLong())).thenReturn(user);
 
@@ -253,6 +283,25 @@ public class ItemServiceImplTest {
 
         assertEquals(1, itemsReturn.size());
         assertEquals("Отвертка", itemsReturn.get(0).getName());
+    }
+
+    @Test
+    public void searchItemTestNegative() {
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> itemServiceImpl.searchItem(1L, "Крестовая", -1, 10));
+
+        assertEquals("Отрицательные значения страниц", exception.getMessage());
+    }
+
+    @Test
+    public void searchItemTestNegativeTextBlank() {
+
+        when(userService.findById(anyLong())).thenReturn(user);
+
+        List<Item> itemsReturn = itemServiceImpl.searchItem(1L,"", 0, 10);
+
+        assertEquals(0, itemsReturn.size());
     }
 
     @Test
@@ -273,7 +322,7 @@ public class ItemServiceImplTest {
         when(bookingRepository.existsByItemIdAndBookerIdAndEndBefore(1L,
                         1L,
                         time))
-                .thenReturn(true);
+                .thenReturn(responseTrue);
 
         when(commentMapper.toComment(commentCreateRequest)).thenReturn(comment);
 
@@ -290,6 +339,23 @@ public class ItemServiceImplTest {
         CommentResponse commentResponse1 = itemServiceImpl.createComment(1L, 1L, commentCreateRequest, time);
         assertEquals(1, commentResponse1.getId());
         assertEquals("Шикарная отвертка всем советую", commentResponse1.getText());
+    }
+
+    @Test
+    public void createCommentTestNegativ() {
+
+        boolean responseTrue = false;
+        LocalDateTime time = LocalDateTime.now();
+
+        when(bookingRepository.existsByItemIdAndBookerIdAndEndBefore(1L,
+                1L,
+                time))
+                .thenReturn(responseTrue);
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> itemServiceImpl.createComment(1L, 1L, commentCreateRequest, time));
+
+        assertEquals("Вы не можете оставить отзыв", exception.getMessage());
     }
 
 }

@@ -72,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemOld = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
 
-        if (!item.getOwner().equals(itemOld.getOwner())) {
+        if (!userOwnerId.equals(itemOld.getOwner().getId())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
         }
 

@@ -13,7 +13,9 @@ import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ResourceServerError;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
@@ -170,6 +172,33 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    public void createTestNegative() {
+
+        when(bookingMapper.toBooking(any(BookingCreateRequest.class))).thenReturn(booking);
+
+        item.setAvailable(false);
+        when(itemService.getItemById(anyLong())).thenReturn(item);
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> bookingService.create(bookingCreateRequest, 2L));
+
+        assertEquals("Бронь не доступна", exception.getMessage());
+    }
+
+    @Test
+    public void create_TestNegative() {
+
+        when(bookingMapper.toBooking(any(BookingCreateRequest.class))).thenReturn(booking);
+
+        when(itemService.getItemById(anyLong())).thenReturn(item);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> bookingService.create(bookingCreateRequest, 1L));
+
+        assertEquals("Нельзя бронировать свое", exception.getMessage());
+    }
+
+    @Test
     public void updateStatusTest() {
 
         when(userService.findById(anyLong())).thenReturn(user);
@@ -181,6 +210,50 @@ public class BookingServiceImplTest {
         Booking booking1 = bookingService.updateStatus(2L, 1L, true);
 
         assertEquals(booking, booking1);
+        assertEquals(StatusBooking.APPROVED, booking1.getStatus());
+    }
+
+    @Test
+    public void updateStatusTestREJECTED() {
+
+        when(userService.findById(anyLong())).thenReturn(user);
+
+        when(repository.findByIdAndItemOwner(anyLong(), any(User.class))).thenReturn(Optional.of(booking));
+
+        when(repository.save(booking)).thenReturn(booking);
+
+        Booking booking1 = bookingService.updateStatus(2L, 1L, false);
+
+        assertEquals(booking, booking1);
+        assertEquals(StatusBooking.REJECTED, booking1.getStatus());
+    }
+
+    @Test
+    public void updateStatusTestNegativValid() {
+
+        when(userService.findById(anyLong())).thenReturn(user);
+
+        booking.setStatus(StatusBooking.APPROVED);
+        when(repository.findByIdAndItemOwner(anyLong(), any(User.class))).thenReturn(Optional.of(booking));
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> bookingService.updateStatus(2L, 1L, true));
+
+        assertEquals("Бронирование подтверждено ранее", exception.getMessage());
+    }
+
+    @Test
+    public void updateStatusTestNegativNotFound() {
+
+        when(userService.findById(anyLong())).thenReturn(user);
+
+        booking.setStatus(StatusBooking.APPROVED);
+        when(repository.findByIdAndItemOwner(anyLong(), any(User.class))).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> bookingService.updateStatus(2L, 99L, true));
+
+        assertEquals("Такого бронирования нет", exception.getMessage());
     }
 
     @Test
