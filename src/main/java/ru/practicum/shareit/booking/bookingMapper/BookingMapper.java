@@ -46,22 +46,18 @@ public class BookingMapper {
     }
 
     public BookingResponse toResponse(Booking booking, ItemResponse itemResponse, UserResponse userResponse) {
-        if (booking == null && itemResponse == null && userResponse == null) {
+        if (booking == null || itemResponse == null || userResponse == null) {
             return null;
         } else {
             BookingResponse.BookingResponseBuilder bookingResponse = BookingResponse.builder();
-            if (booking != null) {
+
                 bookingResponse.id(booking.getId());
                 bookingResponse.start(booking.getStart());
                 bookingResponse.end(booking.getEnd());
-                if (booking.getStatus() != null) {
-                    bookingResponse.status(booking.getStatus().name());
-                }
-            }
+                bookingResponse.status(booking.getStatus().name());
+                bookingResponse.item(itemResponse);bookingResponse.booker(userResponse);
 
-            bookingResponse.item(itemResponse);
-            bookingResponse.booker(userResponse);
-            return bookingResponse.build();
+                return bookingResponse.build();
         }
     }
 

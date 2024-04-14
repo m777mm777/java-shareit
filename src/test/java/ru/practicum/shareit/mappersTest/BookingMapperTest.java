@@ -103,6 +103,14 @@ public class BookingMapperTest {
     }
 
     @Test
+    public void toBookingTestNegative() {
+
+        Booking booking1 = bookingMapper.toBooking(null);
+
+        assertEquals(null, booking1);
+    }
+
+    @Test
     public void toResponseTest() {
 
         BookingResponse bookingResponse1 = bookingMapper.toResponse(booking, itemResponse, userResponse);
@@ -110,6 +118,14 @@ public class BookingMapperTest {
         assertEquals(1, bookingResponse1.getId());
         assertEquals("Отвертка", bookingResponse1.getItem().getName());
         assertEquals("name", bookingResponse1.getBooker().getName());
+    }
+
+    @Test
+    public void toResponseTestNegative() {
+
+        BookingResponse bookingResponse1 = bookingMapper.toResponse(booking, null, userResponse);
+
+        assertEquals(null, bookingResponse1);
     }
 
     @Test
