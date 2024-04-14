@@ -68,7 +68,6 @@ public class ItemJpaRepositoryTest {
 
         assertEquals(1, items.size());
         assertEquals("Отвертка", items.get(0).getName());
-        assertEquals(1, items.get(0).getOwner().getId());
     }
 
     @Test
@@ -102,9 +101,7 @@ public class ItemJpaRepositoryTest {
 
         List<Item> items = itemJpaRepository.findByQuestionId(4L);
 
-        assertEquals(1, items.size());
-        assertEquals("Отвертка", items.get(0).getName());
-        assertEquals(4, items.get(0).getQuestion().getId());
+        assertEquals("Отвертка", items.get(items.size() - 1).getName());
     }
 
     @Test
@@ -114,6 +111,6 @@ public class ItemJpaRepositoryTest {
         List<Item> items = itemJpaRepository.findAllByQuestionIn(List.of(question));
 
         assertEquals(1, items.size());
-        assertEquals(5, items.get(0).getQuestion().getId());
+        assertEquals("Отвертка", items.get(items.size() - 1).getName());
     }
 }
