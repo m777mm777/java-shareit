@@ -1,8 +1,12 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.State;
 import ru.practicum.shareit.booking.constants.StatusBooking;
@@ -30,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private static final Sort SORT_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
+    @Transactional
     public Booking create(BookingCreateRequest bookingRequest, Long bookerId) {
         Booking booking = bookingMapper.toBooking(bookingRequest);
         Item item = itemService.getItemById(bookingRequest.getItemId());
@@ -76,68 +81,81 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getBookingByItem(Long itemId, Long ownerId) {
-        return repository.findByItemIdAndItemOwner(itemId, ownerId);
+        return repository.findByItemIdAndItemOwnerId(itemId, ownerId);
     }
 
     @Override
-    public List<Booking> getBookingsByBooker(Long bookerId, String status) {
+    public List<Booking> getBookingsByBooker(Long bookerId, String status, Integer from, Integer size) {
+
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Отрицательные значения страниц");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, SORT_START_DESC);
         userService.findById(bookerId);
-
-        List<Booking> bookings;
+        LocalDateTime time = LocalDateTime.now();
+        Page<Booking> bookings;
 
         switch (checkState(status)) {
             case CURRENT:
-                bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, time, time, page);
                 break;
             case PAST:
-                bookings = repository.findByBookerIdAndEndBefore(bookerId, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByBookerIdAndEndBefore(bookerId, time, page);
                 break;
             case FUTURE:
-                bookings = repository.findByBookerIdAndStartAfter(bookerId, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByBookerIdAndStartAfter(bookerId, time, page);
                 break;
             case WAITING:
-                bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.WAITING, SORT_START_DESC);
+                bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.WAITING, page);
                 break;
             case REJECTED:
-                bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.REJECTED, SORT_START_DESC);
+                bookings = repository.findByBookerIdAndStatus(bookerId, StatusBooking.REJECTED, page);
                 break;
             case ALL:
-                bookings = repository.findByBookerId(bookerId, SORT_START_DESC);
+                bookings = repository.findByBookerId(bookerId, page);
                 break;
             default:
                 throw new ResourceServerError("Unknown state: " + status);
         }
-        return bookings;
+        return bookings.getContent();
     }
 
     @Override
-    public List<Booking> getBookingsByOwner(Long ownerId, String status) {
+    public List<Booking> getBookingsByOwner(Long ownerId, String status,Integer from, Integer size) {
+
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Отрицательные значения страниц");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, SORT_START_DESC);
         User owner = userService.findById(ownerId);
-        List<Booking> bookings;
+        Page<Booking> bookings;
+        LocalDateTime time = LocalDateTime.now();
 
         switch (checkState(status)) {
             case CURRENT:
-                bookings = repository.findByItemOwnerAndStartBeforeAndEndAfter(owner, LocalDateTime.now(), LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStartBeforeAndEndAfter(owner, time, time, page);
                 break;
             case PAST:
-                bookings = repository.findByItemOwnerAndEndBefore(owner, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndEndBefore(owner, time, page);
                 break;
             case FUTURE:
-                bookings = repository.findByItemOwnerAndStartAfter(owner, LocalDateTime.now(), SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStartAfter(owner, time, page);
                 break;
             case WAITING:
-                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.WAITING, SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.WAITING, page);
                 break;
             case REJECTED:
-                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.REJECTED, SORT_START_DESC);
+                bookings = repository.findByItemOwnerAndStatus(owner, StatusBooking.REJECTED, page);
                 break;
             case ALL:
-                bookings = repository.findByItemOwner(owner, SORT_START_DESC);
+                bookings = repository.findByItemOwner(owner, page);
                 break;
             default:
                 throw new ResourceServerError("Unknown state: " + status);
         }
-        return bookings;
+        return bookings.getContent();
     }
 
     private State checkState(String status) {

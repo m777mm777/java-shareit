@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.bookingMapper;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.controller.dto.BookingResponse;
 import ru.practicum.shareit.booking.controller.dto.InformationBooking;
@@ -14,7 +14,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class BookingMapper {
 

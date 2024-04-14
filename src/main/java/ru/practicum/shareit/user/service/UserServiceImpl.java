@@ -21,11 +21,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user, Long id) {
-        findById(id);
-        user.setId(id);
 
         User oldUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
+
+        user.setId(id);
 
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(oldUser.getName());
@@ -50,7 +50,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Long removeById(Long id) {
-        findById(id);
+        userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
+
         userRepository.deleteById(id);
          return id;
     }

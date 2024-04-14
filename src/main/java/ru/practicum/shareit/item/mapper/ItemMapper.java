@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
@@ -8,7 +9,8 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
+@RequiredArgsConstructor
 public class ItemMapper {
 
     public List<ItemResponse> toResponseCollection(List<Item> items) {
@@ -40,14 +42,15 @@ public class ItemMapper {
             return null;
         } else {
             ItemResponse.ItemResponseBuilder itemResponse = ItemResponse.builder();
-            if (item != null) {
-                itemResponse.id(item.getId());
-                itemResponse.name(item.getName());
-                itemResponse.description(item.getDescription());
-                itemResponse.available(item.getAvailable());
-                itemResponse.owner(item.getOwner().getId());
-            }
+            itemResponse.id(item.getId());
+            itemResponse.name(item.getName());
+            itemResponse.description(item.getDescription());
+            itemResponse.available(item.getAvailable());
+            itemResponse.owner(item.getOwner().getId());
 
+            if (item.getQuestion() != null) {
+                itemResponse.requestId(item.getQuestion().getId());
+            }
             return itemResponse.build();
         }
     }

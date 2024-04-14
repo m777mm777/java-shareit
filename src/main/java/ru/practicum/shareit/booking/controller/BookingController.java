@@ -53,7 +53,7 @@ public class BookingController {
         return bookingMapper.toResponse(booking, itemResponse, userResponse);
     }
 
-    @GetMapping("{bookingId}")
+    @GetMapping("/{bookingId}")
     public BookingResponse getStatus(@RequestHeader(Constants.RESPONSEHEADER) Long userId,
                                                     @PathVariable("bookingId") Long bookingId) {
         log.info("GetStatus userId {} bookingId {}", userId, bookingId);
@@ -66,15 +66,19 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponse> getBookingsByBooker(@RequestHeader(Constants.RESPONSEHEADER) Long bookerId,
-                                             @RequestParam(value = "state", defaultValue = "ALL") String status) {
-        log.info("GetBookingsByBooker bookerId {} status {}", bookerId, status);
-        return bookingMapper.toResponseCollection(bookingService.getBookingsByBooker(bookerId, status));
+                                             @RequestParam(value = "state", defaultValue = "ALL") String status,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(defaultValue = "10") Integer size) {
+        log.info("GetBookingsByBooker bookerId {} status {} from {} size {}", bookerId, status, from, size);
+        return bookingMapper.toResponseCollection(bookingService.getBookingsByBooker(bookerId, status, from, size));
     }
 
     @GetMapping("/owner")
     public List<BookingResponse> getBookingsByOwnerItems(@RequestHeader(Constants.RESPONSEHEADER) Long ownerId,
-                                           @RequestParam(value = "state", defaultValue = "ALL") String status) {
-        log.info("GetBookingsByOwnerItems ownerId {} status {}", ownerId, status);
-        return bookingMapper.toResponseCollection(bookingService.getBookingsByOwner(ownerId, status));
+                                           @RequestParam(value = "state", defaultValue = "ALL") String status,
+                                                         @RequestParam(defaultValue = "0") Integer from,
+                                                         @RequestParam(defaultValue = "10") Integer size) {
+        log.info("GetBookingsByOwnerItems ownerId {} status {} from {} size {}", ownerId, status, from, size);
+        return bookingMapper.toResponseCollection(bookingService.getBookingsByOwner(ownerId, status, from, size));
     }
 }
