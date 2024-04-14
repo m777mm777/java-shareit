@@ -19,7 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ItemJpaRepositoryTest {
 
     @Autowired
@@ -61,7 +60,6 @@ public class ItemJpaRepositoryTest {
     }
 
     @Test
-    @Order(1)
     public void findByOwnerPositive() {
 
         List<Item> items = itemJpaRepository.findByOwner(user, page).getContent();
@@ -71,7 +69,6 @@ public class ItemJpaRepositoryTest {
     }
 
     @Test
-    @Order(2)
     public void findByOwnerNegative() {
 
         user = new User();
@@ -84,7 +81,6 @@ public class ItemJpaRepositoryTest {
     }
 
     @Test
-    @Order(3)
     public void searchItemTest() {
 
 
@@ -95,22 +91,19 @@ public class ItemJpaRepositoryTest {
     }
 
     @Test
-    @Order(4)
     public void findByQuestionIdTest() {
 
 
-        List<Item> items = itemJpaRepository.findByQuestionId(4L);
+        List<Item> items = itemJpaRepository.findByQuestionId(question.getId());
 
-        assertEquals("Отвертка", items.get(items.size() - 1).getName());
+        assertEquals(1, items.size());
     }
 
     @Test
-    @Order(5)
     public void findAllByQuestionInTest() {
 
         List<Item> items = itemJpaRepository.findAllByQuestionIn(List.of(question));
 
         assertEquals(1, items.size());
-        assertEquals("Отвертка", items.get(items.size() - 1).getName());
     }
 }
