@@ -6,7 +6,7 @@ import ru.practicum.shareit.exceptions.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class errorHandlerTest {
+public class ErrorHandlerTest {
 
     ErrorHandler errorHandler = new ErrorHandler();
 
