@@ -56,7 +56,7 @@ public class CommentJpaRepositoryTest {
     @Test
     public void findByItemIdTest() {
 
-       List<Comment> comments = commentJpaRepository.findByItemId(1L);
+       List<Comment> comments = commentJpaRepository.findByItemId(item.getId());
 
         assertEquals(1, comments.size());
         assertEquals("Коммент", comments.get(0).getText());
