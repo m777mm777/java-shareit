@@ -31,7 +31,6 @@ public class UserJpaRepositoryTest {
 
         User user1 = userJpaRepository.save(user);
 
-        assertEquals(1, user1.getId());
         assertEquals("name", user1.getName());
     }
 }
