@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    
     @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorMessage> handleValidationException(final ValidationException e) {
         log.debug("Получен статус 400 Not found {}", e.getMessage(), e);
