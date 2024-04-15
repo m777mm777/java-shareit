@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
@@ -50,23 +51,26 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public List<Question> getAllQuestionByCreator(Long userCreatorId) {
+    public List<QuestionResponse> getAllQuestionByCreator(Long userCreatorId) {
         userService.findById(userCreatorId);
         List<Question> questions = repository.findByCreatorId(userCreatorId, SORT_CREATED_DESC);
+
+        List<QuestionResponse> questionResponses = questionMapper.toResponseCollection(questions);
 
         Map<Long, List<Item>> items = itemJpaRepository.findAllByQuestionIn(questions)
                 .stream()
                 .collect(groupingBy((Item i) -> i.getQuestion().getId(), toList()));
 
-        for (Question question: questions) {
-            question.setItems(items.get(question.getId()));
+        for (QuestionResponse questionResponse: questionResponses) {
+            List<ItemResponse> itemResponses = itemMapper.toResponseCollection(items.get(questionResponse.getId()));
+            questionResponse.setItems(itemResponses);
         }
 
-        return questions;
+        return questionResponses;
     }
 
     @Override
-    public List<Question> getAllQuestionOtherUser(Long userId, Integer from, Integer size) {
+    public List<QuestionResponse> getAllQuestionOtherUser(Long userId, Integer from, Integer size) {
         userService.findById(userId);
 
         if (from < 0 || size < 0) {
@@ -76,15 +80,18 @@ public class QuestionServiceImpl implements QuestionService {
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created").descending());
         List<Question> questions = repository.findByCreatorIdNot(userId, page).getContent();
 
+        List<QuestionResponse> questionResponses = questionMapper.toResponseCollection(questions);
+
         Map<Long, List<Item>> items = itemJpaRepository.findAllByQuestionIn(questions)
                 .stream()
                 .collect(groupingBy((Item i) -> i.getQuestion().getId(), toList()));
 
-        for (Question question: questions) {
-            question.setItems(items.get(question.getId()));
+        for (QuestionResponse questionResponse : questionResponses) {
+            List<ItemResponse> itemResponses = itemMapper.toResponseCollection(items.get(questionResponse.getId()));
+            questionResponse.setItems(itemResponses);
         }
 
-        return questions;
+        return questionResponses;
     }
 
     @Override

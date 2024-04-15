@@ -110,9 +110,9 @@ public class QuestionControllerTest {
     public void getAllQuestionByCreatorTest() throws Exception {
 
         when(questionService.getAllQuestionByCreator(anyLong()))
-                .thenReturn(List.of(question));
+                .thenReturn(List.of(questionResponse));
 
-        when(questionMapper.toResponseCollection(anyList())).thenReturn(List.of(questionResponse));
+//        when(questionMapper.toResponseCollection(anyList())).thenReturn(List.of(questionResponse));
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -129,9 +129,7 @@ public class QuestionControllerTest {
         Integer size = 10;
 
         when(questionService.getAllQuestionOtherUser(anyLong(), anyInt(), anyInt()))
-                .thenReturn(List.of(question));
-
-        when(questionMapper.toResponse(question)).thenReturn(questionResponse);
+                .thenReturn(List.of(questionResponse));
 
         mvc.perform(get("/requests/all")
                         .param("from", from.toString())

@@ -31,7 +31,7 @@ public class QuestionController {
     @GetMapping
     public List<QuestionResponse> getAllQuestionByCreator(@RequestHeader(Constants.RESPONSEHEADER) Long userCreatorId) {
         log.info("getAllQuestionByCreator userCreatorId {}", userCreatorId);
-        return questionMapper.toResponseCollection(questionService.getAllQuestionByCreator(userCreatorId));
+        return questionService.getAllQuestionByCreator(userCreatorId);
     }
 
     @GetMapping("/all")
@@ -39,7 +39,7 @@ public class QuestionController {
                                                  @RequestParam(defaultValue = "0") Integer from,
                                                  @RequestParam(defaultValue = "10") Integer size) {
         log.info("getAllQuestionOtherUser userId {} from {} size {}", userId, from, size);
-        return questionMapper.toResponseCollection(questionService.getAllQuestionOtherUser(userId, from, size));
+        return questionService.getAllQuestionOtherUser(userId, from, size);
     }
 
     @GetMapping("/{requestId}")

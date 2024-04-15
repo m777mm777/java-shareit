@@ -2,8 +2,6 @@ package ru.practicum.shareit.question.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.question.controller.dto.QuestionCreateRequest;
 import ru.practicum.shareit.question.controller.dto.QuestionResponse;
 import ru.practicum.shareit.question.model.Question;
@@ -17,7 +15,6 @@ import java.util.List;
 public class QuestionMapper {
 
     private final UserMapper userMapper;
-    private final ItemMapper itemMapper;
 
     public List<QuestionResponse> toResponseCollection(List<Question> questions) {
 
@@ -50,13 +47,7 @@ public class QuestionMapper {
             questionResponse.description(question.getDescription());
             questionResponse.creator(userMapper.toResponse(question.getCreator()));
             questionResponse.created(question.getCreated());
-            List<Item> items = question.getItems();
-
-            if (items == null) {
-                questionResponse.items(new ArrayList<>());
-            } else {
-                questionResponse.items(itemMapper.toResponseCollection(items));
-            }
+            questionResponse.items(new ArrayList<>());
 
             return questionResponse.build();
         }

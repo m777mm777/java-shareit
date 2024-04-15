@@ -10,9 +10,9 @@ public interface QuestionService {
 
     public Question createQuestion(Long userCreatorId, QuestionCreateRequest request);
 
-    public List<Question> getAllQuestionByCreator(Long userCreatorId);
+    public List<QuestionResponse> getAllQuestionByCreator(Long userCreatorId);
 
-    public List<Question> getAllQuestionOtherUser(Long userId, Integer from, Integer size);
+    public List<QuestionResponse> getAllQuestionOtherUser(Long userId, Integer from, Integer size);
 
     public QuestionResponse getQuestionById(Long userId, Long questionId);
 }

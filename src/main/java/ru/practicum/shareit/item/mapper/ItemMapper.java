@@ -17,6 +17,10 @@ public class ItemMapper {
 
         List<ItemResponse> itemResponses = new ArrayList<>();
 
+        if (items == null) {
+            return itemResponses;
+        }
+
         for (Item item: items) {
             ItemResponse itemResponse = toResponse(item);
             itemResponses.add(itemResponse);

@@ -3,12 +3,10 @@ package ru.practicum.shareit.question.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -29,8 +27,4 @@ public class Question {
     private User creator;
 
     private LocalDateTime created;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private List<Item> items;
 }

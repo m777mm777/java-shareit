@@ -177,9 +177,11 @@ public class QuestionServiceImplTest {
 
         when(userService.findById(anyLong())).thenReturn(user);
         when(repository.findByCreatorId(anyLong(), any(Sort.class))).thenReturn(List.of(question));
+        when(questionMapper.toResponseCollection(anyList())).thenReturn(List.of(questionResponse));
         when(itemRepository.findAllByQuestionIn(anyList())).thenReturn(List.of(item));
+        when(itemMapper.toResponseCollection(anyList())).thenReturn(List.of(itemResponse));
 
-        List<Question> questions = questionService.getAllQuestionByCreator(1L);
+        List<QuestionResponse> questions = questionService.getAllQuestionByCreator(1L);
 
         assertEquals(1, questions.size());
         assertEquals("Любая отвертка нужна", questions.get(0).getDescription());
@@ -196,7 +198,7 @@ public class QuestionServiceImplTest {
         when(repository.findByCreatorIdNot(anyLong(), any(Pageable.class))).thenReturn(questionPage);
         when(itemRepository.findAllByQuestionIn(anyList())).thenReturn(List.of(item));
 
-        List<Question> questions1 = questionService.getAllQuestionOtherUser(1L, 0, 10);
+        List<QuestionResponse> questions1 = questionService.getAllQuestionOtherUser(1L, 0, 10);
 
         assertEquals(1, questions.size());
         assertEquals("Любая отвертка нужна", questions.get(0).getDescription());

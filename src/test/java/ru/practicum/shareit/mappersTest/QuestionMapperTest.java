@@ -41,7 +41,6 @@ public class QuestionMapperTest {
         question.setDescription("Любая отвертка");
         question.setCreator(new User());
         question.setCreated(LocalDateTime.now());
-        question.setItems(new ArrayList<>());
 
         questionCreateRequest = new QuestionCreateRequest();
         questionCreateRequest.setDescription("Любая отвертка");
