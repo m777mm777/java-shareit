@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
@@ -16,8 +17,11 @@ import ru.practicum.shareit.user.controller.dto.UserResponse;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
@@ -67,8 +71,8 @@ public class BookingController {
     @GetMapping
     public List<BookingResponse> getBookingsByBooker(@RequestHeader(Constants.RESPONSEHEADER) Long bookerId,
                                              @RequestParam(value = "state", defaultValue = "ALL") String status,
-                                                     @RequestParam(defaultValue = "0") Integer from,
-                                                     @RequestParam(defaultValue = "10") Integer size) {
+                                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("GetBookingsByBooker bookerId {} status {} from {} size {}", bookerId, status, from, size);
         return bookingMapper.toResponseCollection(bookingService.getBookingsByBooker(bookerId, status, from, size));
     }
@@ -76,8 +80,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingResponse> getBookingsByOwnerItems(@RequestHeader(Constants.RESPONSEHEADER) Long ownerId,
                                            @RequestParam(value = "state", defaultValue = "ALL") String status,
-                                                         @RequestParam(defaultValue = "0") Integer from,
-                                                         @RequestParam(defaultValue = "10") Integer size) {
+                                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("GetBookingsByOwnerItems ownerId {} status {} from {} size {}", ownerId, status, from, size);
         return bookingMapper.toResponseCollection(bookingService.getBookingsByOwner(ownerId, status, from, size));
     }

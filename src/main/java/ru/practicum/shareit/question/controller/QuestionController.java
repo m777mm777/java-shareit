@@ -11,8 +11,11 @@ import ru.practicum.shareit.question.mapper.QuestionMapper;
 import ru.practicum.shareit.question.service.QuestionService;
 import ru.practicum.shareit.user.controller.Create;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/requests")
@@ -36,8 +39,8 @@ public class QuestionController {
 
     @GetMapping("/all")
     public List<QuestionResponse> getAllQuestionOtherUser(@RequestHeader(Constants.RESPONSEHEADER) Long userId,
-                                                 @RequestParam(defaultValue = "0") Integer from,
-                                                 @RequestParam(defaultValue = "10") Integer size) {
+                                                          @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                          @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("getAllQuestionOtherUser userId {} from {} size {}", userId, from, size);
         return questionService.getAllQuestionOtherUser(userId, from, size);
     }

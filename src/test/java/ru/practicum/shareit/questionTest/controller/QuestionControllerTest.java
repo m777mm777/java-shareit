@@ -1,4 +1,4 @@
-package ru.practicum.shareit.questionTest;
+package ru.practicum.shareit.questionTest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,12 +107,29 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void createQuestionTestBadRequest() throws Exception {
+
+        when(questionService.createQuestion(anyLong(), any(QuestionCreateRequest.class)))
+                .thenReturn(question);
+
+        when(questionMapper.toResponse(question)).thenReturn(questionResponse);
+
+        QuestionCreateRequest questionCreateRequest1 = new QuestionCreateRequest();
+
+        mvc.perform(post("/requests")
+                        .content(objectMapper.writeValueAsString(questionCreateRequest1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void getAllQuestionByCreatorTest() throws Exception {
 
         when(questionService.getAllQuestionByCreator(anyLong()))
                 .thenReturn(List.of(questionResponse));
-
-//        when(questionMapper.toResponseCollection(anyList())).thenReturn(List.of(questionResponse));
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -139,6 +156,25 @@ public class QuestionControllerTest {
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllQuestionOtherUserTestNotValid() throws Exception {
+
+        Integer from = -1;
+        Integer size = -10;
+
+        when(questionService.getAllQuestionOtherUser(anyLong(), anyInt(), anyInt()))
+                .thenReturn(List.of(questionResponse));
+
+        mvc.perform(get("/requests/all")
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

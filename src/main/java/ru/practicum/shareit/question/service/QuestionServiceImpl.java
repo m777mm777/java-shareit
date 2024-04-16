@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,16 +54,7 @@ public class QuestionServiceImpl implements QuestionService {
         userService.findById(userCreatorId);
         List<Question> questions = repository.findByCreatorId(userCreatorId, SORT_CREATED_DESC);
 
-        List<QuestionResponse> questionResponses = questionMapper.toResponseCollection(questions);
-
-        Map<Long, List<Item>> items = itemJpaRepository.findAllByQuestionIn(questions)
-                .stream()
-                .collect(groupingBy((Item i) -> i.getQuestion().getId(), toList()));
-
-        for (QuestionResponse questionResponse: questionResponses) {
-            List<ItemResponse> itemResponses = itemMapper.toResponseCollection(items.get(questionResponse.getId()));
-            questionResponse.setItems(itemResponses);
-        }
+        List<QuestionResponse> questionResponses = assembly(questions);
 
         return questionResponses;
     }
@@ -80,16 +70,7 @@ public class QuestionServiceImpl implements QuestionService {
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created").descending());
         List<Question> questions = repository.findByCreatorIdNot(userId, page).getContent();
 
-        List<QuestionResponse> questionResponses = questionMapper.toResponseCollection(questions);
-
-        Map<Long, List<Item>> items = itemJpaRepository.findAllByQuestionIn(questions)
-                .stream()
-                .collect(groupingBy((Item i) -> i.getQuestion().getId(), toList()));
-
-        for (QuestionResponse questionResponse : questionResponses) {
-            List<ItemResponse> itemResponses = itemMapper.toResponseCollection(items.get(questionResponse.getId()));
-            questionResponse.setItems(itemResponses);
-        }
+        List<QuestionResponse> questionResponses = assembly(questions);
 
         return questionResponses;
     }
@@ -105,11 +86,27 @@ public class QuestionServiceImpl implements QuestionService {
         List<Item> items = itemJpaRepository.findByQuestionId(questionId);
 
         if (items == null) {
-            questionResponse.setItems(new ArrayList<>());
+            questionResponse.setItems(List.of());
         } else {
             questionResponse.setItems(itemMapper.toResponseCollection(items));
         }
 
         return questionResponse;
+    }
+
+    private List<QuestionResponse> assembly(List<Question> questions) {
+
+        List<QuestionResponse> questionResponses = questionMapper.toResponseCollection(questions);
+
+        Map<Long, List<Item>> items = itemJpaRepository.findAllByQuestionIn(questions)
+                .stream()
+                .collect(groupingBy((Item i) -> i.getQuestion().getId(), toList()));
+
+        for (QuestionResponse questionResponse: questionResponses) {
+            List<ItemResponse> itemResponses = itemMapper.toResponseCollection(items.get(questionResponse.getId()));
+            questionResponse.setItems(itemResponses);
+        }
+
+        return questionResponses;
     }
 }

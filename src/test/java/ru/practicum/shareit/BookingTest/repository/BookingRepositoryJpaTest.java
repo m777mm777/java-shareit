@@ -1,4 +1,4 @@
-package ru.practicum.shareit.BookingTest;
+package ru.practicum.shareit.BookingTest.repository;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

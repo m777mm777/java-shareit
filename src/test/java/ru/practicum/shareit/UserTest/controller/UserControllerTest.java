@@ -1,4 +1,4 @@
-package ru.practicum.shareit.UserTest;
+package ru.practicum.shareit.UserTest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,22 +59,28 @@ public class UserControllerTest {
         when(userService.create(any(User.class))).thenReturn(user);
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-//        mvc.perform(post("/users")
-//                        .content(objectMapper.writeValueAsString(userCreateRequest))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .header(Constants.RESPONSEHEADER, 1L))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", is(1L), Long.class))
-//                .andExpect(jsonPath("$.name", is(userCreateRequest.getName())))
-//                .andExpect(jsonPath("$.email", is(userCreateRequest.getEmail())));
-
         mvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(userCreateRequest))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void createTestBadRequest() throws Exception {
+
+        when(userMapper.toUser(any(UserCreateRequest.class))).thenReturn(user);
+        when(userService.create(any(User.class))).thenReturn(user);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        UserCreateRequest userCreateRequest1 = new UserCreateRequest("", "ff");
+        mvc.perform(post("/users")
+                        .content(objectMapper.writeValueAsString(userCreateRequest1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -92,6 +98,25 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateTestBadRequest() throws Exception {
+
+        Long id = 1L;
+
+        when(userMapper.toUser(any(UserCreateRequest.class))).thenReturn(user);
+        when(userService.update(any(User.class), anyLong())).thenReturn(user);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        UserCreateRequest userCreateRequest1 = new UserCreateRequest("", "ff");
+
+        mvc.perform(patch("/users/{id}", id)
+                        .content(objectMapper.writeValueAsString(userCreateRequest1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.mappersTest;
+package ru.practicum.shareit.itemTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

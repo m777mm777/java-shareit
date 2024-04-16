@@ -1,4 +1,4 @@
-package ru.practicum.shareit.questionTest;
+package ru.practicum.shareit.questionTest.repository;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

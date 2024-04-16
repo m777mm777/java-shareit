@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemTest;
+package ru.practicum.shareit.itemTest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,6 +107,28 @@ public class ItemControllerTest {
     }
 
     @Test
+    public void createTestBadRequest() throws Exception {
+
+        when(itemService.createItem(anyLong(), any(ItemCreateRequest.class)))
+                .thenReturn(item);
+
+        when(itemMapper.toResponse(item)).thenReturn(itemResponse);
+
+        ItemCreateRequest itemCreateRequestBad = new ItemCreateRequest(null,
+                null,
+                null,
+                null);
+
+        mvc.perform(post("/items")
+                        .content(objectMapper.writeValueAsString(itemCreateRequestBad))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void updateTest() throws Exception {
 
         Long itemId = 1L;
@@ -170,6 +192,26 @@ public class ItemControllerTest {
     }
 
     @Test
+    public void getAllByOwnerTestNotValid() throws Exception {
+
+        Integer from = -1;
+        Integer size = 10;
+
+        when(itemService.getAllItemsByOwner(anyLong(), anyInt(), anyInt()))
+                .thenReturn(List.of(itemResponse));
+
+        mvc.perform(get("/items")
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .content(objectMapper.writeValueAsString(request))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void searchItemTest() throws Exception {
 
         Integer from = 0;
@@ -192,6 +234,28 @@ public class ItemControllerTest {
     }
 
     @Test
+    public void searchItemTestNotValid() throws Exception {
+
+        Integer from = 0;
+        Integer size = -10;
+        String text = "текст";
+
+        when(itemService.searchItem(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(List.of(item));
+
+        mvc.perform(get("/items/search")
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .param("text", text)
+                        .content(objectMapper.writeValueAsString(request))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void createCommentTest() throws Exception {
 
         Long itemId = 1L;
@@ -206,5 +270,24 @@ public class ItemControllerTest {
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void createCommentTestBadRequest() throws Exception {
+
+        Long itemId = 1L;
+
+        when(itemService.findById(anyLong(), anyLong()))
+                .thenReturn(itemResponse);
+
+        CommentCreateRequest createRequest = new CommentCreateRequest();
+
+        mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .content(objectMapper.writeValueAsString(createRequest))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isBadRequest());
     }
 }

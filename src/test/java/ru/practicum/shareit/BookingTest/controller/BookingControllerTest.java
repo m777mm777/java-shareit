@@ -1,4 +1,4 @@
-package ru.practicum.shareit.BookingTest;
+package ru.practicum.shareit.BookingTest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,6 +187,27 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void createTestNotVaid() throws Exception {
+
+        when(validateBooking.validate(any(BookingCreateRequest.class))).thenReturn(true);
+        when(bookingService.create(any(BookingCreateRequest.class), anyLong())).thenReturn(booking);
+
+        when(itemMapper.toResponse(any(Item.class))).thenReturn(itemResponse);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+        when(bookingMapper.toResponse(any(Booking.class), any(ItemResponse.class), any(UserResponse.class))).thenReturn(bookingResponse);
+
+        BookingCreateRequest bookingCreateRequestBad = new BookingCreateRequest(1L, null, time.plusMinutes(2));
+
+        mvc.perform(post("/bookings")
+                        .content(objectMapper.writeValueAsString(bookingCreateRequestBad))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void updateStatusTest() throws Exception {
 
         Long bookingId = 1L;
@@ -252,6 +273,29 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void getBookingsByBookerTestNotValid() throws Exception {
+
+        String status = "CURRENT";
+        Integer from = -1;
+        Integer size = 10;
+
+        when(bookingService.getBookingsByBooker(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(List.of(booking));
+
+        when(bookingMapper.toResponseCollection(anyList())).thenReturn(List.of(bookingResponse));
+
+        mvc.perform(get("/bookings")
+                        .param("state", status.toString())
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .content(objectMapper.writeValueAsString(bookingCreateRequest))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void getBookingsByOwnerItemsTest() throws Exception {
 
         String status = "CURRENT";
@@ -272,6 +316,29 @@ public class BookingControllerTest {
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getBookingsByOwnerItemsTestNotValid() throws Exception {
+
+        String status = "CURRENT";
+        Integer from = 0;
+        Integer size = 0;
+
+        when(bookingService.getBookingsByOwner(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(List.of(booking));
+
+        when(bookingMapper.toResponseCollection(anyList())).thenReturn(List.of(bookingResponse));
+
+        mvc.perform(get("/bookings/owner")
+                        .param("state", status.toString())
+                        .param("from", from.toString())
+                        .param("size", size.toString())
+                        .content(objectMapper.writeValueAsString(bookingCreateRequest))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .header(Constants.RESPONSEHEADER, 1L))
+                .andExpect(status().isInternalServerError());
     }
 
 }
