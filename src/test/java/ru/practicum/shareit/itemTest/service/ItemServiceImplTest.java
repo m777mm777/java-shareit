@@ -243,12 +243,14 @@ public class ItemServiceImplTest {
         Page<Item> itemsPage = new PageImpl<>(items);
         when(itemRepository.findByOwner(user, page)).thenReturn(itemsPage);
 
-        when(commentRepository.findByItemId(anyLong())).thenReturn(List.of(comment));
+        when(commentRepository.findByItemIdIn(anyList())).thenReturn(List.of(comment));
 
-        when(bookingRepository.findByItemOwnerAndStatusNot(user,
+        List<Long> itemIds = List.of(item.getId());
+
+        when(bookingRepository.findByItemIdInAndStatusNot(itemIds,
                 StatusBooking.REJECTED,
                 SORT_START_DESC))
-                .thenReturn(new ArrayList<>());
+                .thenReturn(List.of());
 
         when(commentMapper.toResponseCollection(List.of(comment))).thenReturn(List.of(commentResponse));
 

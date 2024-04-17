@@ -154,7 +154,8 @@ public class BookingRepositoryJpaTest {
     @Order(7)
     public void findByItemOwnerAndStatusNotTest() {
 
-        List<Booking> bookings = bookingJpaRepository.findByItemOwnerAndStatusNot(user, StatusBooking.REJECTED, SORT_START_DESC);
+        List<Long> itemIds = List.of(item.getId());
+        List<Booking> bookings = bookingJpaRepository.findByItemIdInAndStatusNot(itemIds, StatusBooking.REJECTED, SORT_START_DESC);
 
         assertEquals(1, bookings.size());
         assertEquals(item, bookings.get(0).getItem());

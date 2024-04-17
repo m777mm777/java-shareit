@@ -61,4 +61,13 @@ public class CommentJpaRepositoryTest {
         assertEquals(1, comments.size());
         assertEquals("Коммент", comments.get(0).getText());
     }
+
+    @Test
+    public void findByItemIdInTest() {
+
+        List<Comment> comments = commentJpaRepository.findByItemIdIn(List.of(item.getId()));
+
+        assertEquals(1, comments.size());
+        assertEquals("Коммент", comments.get(0).getText());
+    }
 }

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -126,12 +127,13 @@ public class ItemServiceImpl implements ItemService {
         Page<Item> items =  itemRepository.findByOwner(owner, page);
         List<ItemResponse> responseItems = new ArrayList<>();
 
-        Map<Item, List<Comment>> comments = commentRepository.findByItemId(userOwnerId)
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+
+        Map<Item, List<Comment>> comments = commentRepository.findByItemIdIn(itemIds)
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
 
-
-        Map<Item, List<Booking>> bookings = bookingRepository.findByItemOwnerAndStatusNot(owner, StatusBooking.REJECTED, SORT_START_DESC)
+        Map<Item, List<Booking>> bookings = bookingRepository.findByItemIdInAndStatusNot(itemIds, StatusBooking.REJECTED, SORT_START_DESC)
                 .stream()
                 .collect(groupingBy(Booking::getItem, toList()));
 

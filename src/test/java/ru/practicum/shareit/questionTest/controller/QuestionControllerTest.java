@@ -174,7 +174,7 @@ public class QuestionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

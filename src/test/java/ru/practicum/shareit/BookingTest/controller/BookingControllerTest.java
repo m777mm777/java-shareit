@@ -292,7 +292,7 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -338,7 +338,7 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
 }
