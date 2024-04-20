@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.model.Comment;
@@ -8,7 +8,7 @@ import ru.practicum.shareit.item.model.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
 public class CommentMapper {
 
     public Comment toComment(CommentCreateRequest request) {

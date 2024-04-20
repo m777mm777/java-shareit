@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.bookingMapper;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.controller.dto.BookingResponse;
 import ru.practicum.shareit.booking.controller.dto.InformationBooking;
@@ -14,7 +14,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class BookingMapper {
 
@@ -46,22 +46,18 @@ public class BookingMapper {
     }
 
     public BookingResponse toResponse(Booking booking, ItemResponse itemResponse, UserResponse userResponse) {
-        if (booking == null && itemResponse == null && userResponse == null) {
+        if (booking == null || itemResponse == null || userResponse == null) {
             return null;
         } else {
             BookingResponse.BookingResponseBuilder bookingResponse = BookingResponse.builder();
-            if (booking != null) {
+
                 bookingResponse.id(booking.getId());
                 bookingResponse.start(booking.getStart());
                 bookingResponse.end(booking.getEnd());
-                if (booking.getStatus() != null) {
-                    bookingResponse.status(booking.getStatus().name());
-                }
-            }
+                bookingResponse.status(booking.getStatus().name());
+                bookingResponse.item(itemResponse);bookingResponse.booker(userResponse);
 
-            bookingResponse.item(itemResponse);
-            bookingResponse.booker(userResponse);
-            return bookingResponse.build();
+                return bookingResponse.build();
         }
     }
 

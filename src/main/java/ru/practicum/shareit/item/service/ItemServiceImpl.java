@@ -1,14 +1,19 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
@@ -18,6 +23,7 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentJpaRepository;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.question.repository.QuestionJpaRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -26,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -41,11 +48,19 @@ public class ItemServiceImpl implements ItemService {
     private final BookingMapper bookingMapper;
     private final CommentJpaRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final QuestionJpaRepository questionJpaRepository;
     private static final Sort SORT_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
-    public Item createItem(Long userOwnerId, Item item) {
+    @Transactional
+    public Item createItem(Long userOwnerId, ItemCreateRequest itemCreateRequest) {
         User user = userService.findById(userOwnerId);
+        Item item = itemMapper.toItem(itemCreateRequest);
+
+        if (itemCreateRequest.getRequestId() != null) {
+            item.setQuestion(questionJpaRepository.getById(itemCreateRequest.getRequestId()));
+        }
+
         item.setOwner(user);
         return itemRepository.save(item);
     }
@@ -55,8 +70,10 @@ public class ItemServiceImpl implements ItemService {
         User user = userService.findById(userOwnerId);
         item.setId(itemId);
         item.setOwner(user);
-        Item itemOld = getItemById(itemId);
-        if (!item.getOwner().equals(itemOld.getOwner())) {
+        Item itemOld = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item по такому id нет"));
+
+        if (!userOwnerId.equals(itemOld.getOwner().getId())) {
             throw new ResourceNotFoundException("Item этому пользователю не принадлежит");
         }
 
@@ -98,16 +115,25 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponse> getAllItemsByOwner(Long userOwnerId) {
+    public List<ItemResponse> getAllItemsByOwner(Long userOwnerId, Integer from, Integer size) {
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Отрицательные значения страниц");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("id"));
+
         User owner = userService.findById(userOwnerId);
-        List<Item> items =  itemRepository.findByOwnerOrderByIdAsc(owner);
+
+        Page<Item> items =  itemRepository.findByOwner(owner, page);
         List<ItemResponse> responseItems = new ArrayList<>();
 
-        Map<Item, List<Comment>> comments = commentRepository.findByItemId(userOwnerId)
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+
+        Map<Item, List<Comment>> comments = commentRepository.findByItemIdIn(itemIds)
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
-//        bookingRepository.findByItemOwner(userOwnerId, SORT_START_DESC)
-        Map<Item, List<Booking>> bookings = bookingRepository.findByItemOwnerAndStatusNot(owner, StatusBooking.REJECTED, SORT_START_DESC)
+
+        Map<Item, List<Booking>> bookings = bookingRepository.findByItemIdInAndStatusNot(itemIds, StatusBooking.REJECTED, SORT_START_DESC)
                 .stream()
                 .collect(groupingBy(Booking::getItem, toList()));
 
@@ -123,12 +149,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItem(String text) {
+    public List<Item> searchItem(Long userId, String text, Integer from, Integer size) {
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Отрицательные значения страниц");
+        }
+
+        Pageable page = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("id"));
+
+        userService.findById(userId);
+
         if (text.isBlank()) {
             return List.of();
         }
 
-        return itemRepository.searchItem(text);
+        Page<Item> itemsPage = itemRepository.searchItem(text, page);
+        List<Item> items = itemsPage.getContent();
+        return items;
     }
 
     @Override
@@ -155,8 +191,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest request) {
-        boolean completedBooking = bookingRepository.existsByItemIdAndBookerIdAndEndBefore(itemId, authorId, LocalDateTime.now());
+    public CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest request, LocalDateTime now) {
+
+        boolean completedBooking = bookingRepository.existsByItemIdAndBookerIdAndEndBefore(itemId, authorId, now);
 
         if (!completedBooking) {
             throw new ValidationException("Вы не можете оставить отзыв");

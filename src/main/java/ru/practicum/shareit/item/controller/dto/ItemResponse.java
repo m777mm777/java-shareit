@@ -28,4 +28,6 @@ public class ItemResponse {
     private InformationBooking nextBooking;
 
     private List<CommentResponse> comments;
+
+    private Long requestId;
 }

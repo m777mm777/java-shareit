@@ -2,10 +2,12 @@ package ru.practicum.shareit.item.controller.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+@Setter
 @Getter
 @RequiredArgsConstructor
 public class CommentCreateRequest {

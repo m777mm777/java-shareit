@@ -16,8 +16,12 @@ import ru.practicum.shareit.user.controller.Create;
 import ru.practicum.shareit.user.controller.Update;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/items")
@@ -30,10 +34,9 @@ public class ItemController {
     @PostMapping
     public ItemResponse create(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId,
                                @Validated(Create.class) @RequestBody ItemCreateRequest request) {
-        Item item = itemMapper.toItem(request);
-        Item modified = itemService.createItem(userOwnerId, item);
+        Item item = itemService.createItem(userOwnerId, request);
         log.info("Create userOwnerId {} Item {}", userOwnerId, request);
-        return itemMapper.toResponse(modified);
+        return itemMapper.toResponse(item);
     }
 
     @PatchMapping("/{itemId}")
@@ -55,17 +58,21 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<ItemResponse> getAllByOwner(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId) {
-        List<ItemResponse> items = itemService.getAllItemsByOwner(userOwnerId);
-        log.info("getAll userOwnerId {}", userOwnerId);
+    public List<ItemResponse> getAllByOwner(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId,
+                                            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
+        List<ItemResponse> items = itemService.getAllItemsByOwner(userOwnerId, from, size);
+        log.info("getAll userOwnerId {} from {} size {}", userOwnerId, from, size);
         return items;
     }
 
     @GetMapping("/search")
-    public List<ItemResponse> searchItem(@RequestHeader(Constants.RESPONSEHEADER) Long userOwnerId,
-                                         @RequestParam String text) {
-        List<Item> items = itemService.searchItem(text);
-        log.info("searchItem userOwnerId {} text {}", userOwnerId, text);
+    public List<ItemResponse> searchItem(@RequestHeader(Constants.RESPONSEHEADER) Long userId,
+                                         @RequestParam String text,
+                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
+        List<Item> items = itemService.searchItem(userId, text, from, size);
+        log.info("searchItem userId {} text {} from {} size {}", userId, text, from, size);
         return itemMapper.toResponseCollection(items);
     }
 
@@ -74,6 +81,7 @@ public class ItemController {
                                          @PathVariable("itemId") Long itemId,
                                          @RequestBody @Valid CommentCreateRequest request) {
         log.info("CreateComment authorId {} itemId {} request {}", authorId, itemId, request);
-        return itemService.createComment(authorId, itemId, request);
+        LocalDateTime now = LocalDateTime.now();
+        return itemService.createComment(authorId, itemId, request, now);
     }
 }
