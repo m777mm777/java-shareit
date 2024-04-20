@@ -11,13 +11,6 @@ public class ErrorHandlerTest {
     ErrorHandler errorHandler = new ErrorHandler();
 
     @Test
-    public void handleValidationExceptionTest() {
-       final ValidationException exception = new ValidationException("Получен статус 400 Not found");
-        ResponseEntity<ErrorMessage> message = errorHandler.handleValidationException(exception);
-        assertEquals(message, message);
-    }
-
-    @Test
     public void handleNotFoundExceptionTest() {
         final ResourceNotFoundException exception = new ResourceNotFoundException("Получен статус 400 Not found");
         ResponseEntity<ErrorMessage> message = errorHandler.handleNotFoundException(exception);

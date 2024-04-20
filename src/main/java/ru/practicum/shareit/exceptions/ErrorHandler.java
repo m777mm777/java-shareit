@@ -13,8 +13,8 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorMessage> handleValidationException(final ValidationException e) {
+    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    public ResponseEntity<ErrorMessage> handleValidationException(final ConstraintViolationException e) {
         log.debug("Получен статус 400 Not found {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -42,14 +42,6 @@ public class ErrorHandler {
         log.debug("Получен статус 500 Not found {}", e.getMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorMessage> handleBadRequest(final ConstraintViolationException e) {
-        log.debug("Получен статус 400 Not found {}", e.getMessage(), e);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorMessage(e.getMessage()));
     }
 }
