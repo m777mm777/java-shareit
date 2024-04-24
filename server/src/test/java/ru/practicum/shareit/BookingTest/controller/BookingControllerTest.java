@@ -7,20 +7,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.BookingClient;
-import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.booking.dto.BookingCreateRequest;
-import ru.practicum.shareit.booking.dto.BookingState;
-import ru.practicum.shareit.booking.validate.ValidateBooking;
-import ru.practicum.shareit.constants.Constants;
+import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
+import ru.practicum.shareit.booking.constants.StatusBooking;
+import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
+import ru.practicum.shareit.booking.controller.dto.BookingResponse;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.controller.constants.Constants;
+import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
+import ru.practicum.shareit.item.controller.dto.CommentResponse;
+import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
+import ru.practicum.shareit.item.controller.dto.ItemResponse;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.question.controller.dto.QuestionResponse;
+import ru.practicum.shareit.question.model.Question;
+import ru.practicum.shareit.user.controller.dto.UserResponse;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,32 +50,126 @@ public class BookingControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @MockBean
+    private BookingService bookingService;
 
     @MockBean
-    private ValidateBooking validateBooking;
+    private ItemService itemService;
 
     @MockBean
-    private BookingClient bookingClient;
+    private BookingMapper bookingMapper;
+
+    @MockBean
+    private ItemMapper itemMapper;
+
+    @MockBean
+    private UserMapper userMapper;
 
     LocalDateTime time = LocalDateTime.now();
     BookingCreateRequest bookingCreateRequest;
-    BookingCreateRequest bookingCreateRequestBad;
-    ResponseEntity<Object> response;
+    User user;
+    Item item;
+    Booking booking;
+    BookingResponse bookingResponse;
+    ItemCreateRequest itemCreateRequest;
+    UserResponse userResponse;
+    Question question;
+    QuestionResponse questionResponse;
+    CommentResponse commentResponse;
+    ItemResponse itemResponse;
+    CommentCreateRequest commentCreateRequest;
+    Comment comment;
 
     @BeforeEach
     public void startTest() {
-        bookingCreateRequest = new BookingCreateRequest(1L, time.plusMinutes(1), time.plusMinutes(2));
-        bookingCreateRequestBad = new BookingCreateRequest(1L, time.minusMinutes(1), time.plusMinutes(2));
+        itemCreateRequest = new ItemCreateRequest("Отвертка",
+                "Крестовая отвертка для саморезов",
+                true,
+                1L);
 
-        response = ResponseEntity.noContent().build();
+        user = new User();
+        user.setId(1L);
+        user.setName("name");
+        user.setEmail("mail1@mail.ru");
+
+        userResponse = new UserResponse(1L,
+                "name",
+                "mail1@mail.ru");
+
+        question = new Question();
+        question.setId(1L);
+        question.setDescription("Любая отвертка нужна");
+        question.setCreator(user);
+        question.setCreated(LocalDateTime.now());
+
+        item = new Item();
+        item.setId(1L);
+        item.setName("Отвертка");
+        item.setDescription("Крестовая отвертка для саморезов");
+        item.setAvailable(true);
+        item.setOwner(user);
+        item.setQuestion(question);
+
+        commentResponse = new CommentResponse(1L,
+                "Комментарий",
+                itemResponse,
+                "name",
+                time);
+
+        itemResponse = new ItemResponse(1L,
+                "Отвертка",
+                "Крестовая отвертка для саморезов",
+                true,
+                1L,
+                null,
+                null,
+                List.of(commentResponse),
+                1L);
+
+        commentResponse = new CommentResponse(1L,
+                "Шикарная отвертка всем советую",
+                itemResponse,
+                "name",
+                time);
+
+        questionResponse = new QuestionResponse(1L,
+                "Любая отвертка нужна",
+                userResponse,
+                time,
+                List.of(itemResponse));
+
+        comment = new Comment();
+        comment.setId(1L);
+        comment.setText("Шикарная отвертка всем советую");
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(time);
+
+        commentCreateRequest = new CommentCreateRequest();
+        commentCreateRequest.setText("Шикарная отвертка всем советую");
+
+        booking = new Booking();
+        booking.setId(1L);
+        booking.setStart(time.plusMinutes(1));
+        booking.setEnd(time.plusMinutes(2));
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStatus(StatusBooking.WAITING);
+
+        bookingCreateRequest = new BookingCreateRequest(1L, time.plusMinutes(1), time.plusMinutes(2));
+
+        bookingResponse = new BookingResponse(1L, time.plusMinutes(1), time.plusMinutes(2), itemResponse, userResponse, "WAITING");
     }
 
 
     @Test
     public void createTest() throws Exception {
 
-        when(validateBooking.validate(any(BookingCreateRequest.class))).thenReturn(true);
-        when(bookingClient.crateBooking(anyLong(), any(BookingCreateRequest.class))).thenReturn(response);
+        when(bookingService.create(any(BookingCreateRequest.class), anyLong())).thenReturn(booking);
+
+        when(itemMapper.toResponse(any(Item.class))).thenReturn(itemResponse);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+        when(bookingMapper.toResponse(any(Booking.class), any(ItemResponse.class), any(UserResponse.class))).thenReturn(bookingResponse);
 
         mvc.perform(post("/bookings")
                         .content(objectMapper.writeValueAsString(bookingCreateRequest))
@@ -67,24 +177,8 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void createTestNotVaid() throws Exception {
-
-        when(validateBooking.validate(bookingCreateRequestBad)).thenReturn(false);
-
-        when(bookingClient.crateBooking(anyLong(), any(BookingCreateRequest.class))).thenReturn(response);
-
-
-        mvc.perform(post("/bookings")
-                        .content(objectMapper.writeValueAsString(bookingCreateRequestBad))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.ALL)
-                        .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(bookingCreateRequest.getItemId()), Long.class));
     }
 
     @Test
@@ -93,8 +187,11 @@ public class BookingControllerTest {
         Long bookingId = 1L;
         Boolean status = true;
 
-        when(bookingClient.updateStatus(anyLong(), anyLong(), anyBoolean())).thenReturn(response);
+        when(bookingService.updateStatus(anyLong(), anyLong(), anyBoolean())).thenReturn(booking);
 
+        when(itemMapper.toResponse(any(Item.class))).thenReturn(itemResponse);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+        when(bookingMapper.toResponse(any(Booking.class), any(ItemResponse.class), any(UserResponse.class))).thenReturn(bookingResponse);
 
         mvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .param("approved", status.toString())
@@ -103,7 +200,7 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -111,7 +208,11 @@ public class BookingControllerTest {
 
         Long bookingId = 1L;
 
-        when(bookingClient.getStatus(anyLong(), anyLong())).thenReturn(response);
+        when(bookingService.getStatus(anyLong(), anyLong())).thenReturn(booking);
+
+        when(itemMapper.toResponse(any(Item.class))).thenReturn(itemResponse);
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+        when(bookingMapper.toResponse(any(Booking.class), any(ItemResponse.class), any(UserResponse.class))).thenReturn(bookingResponse);
 
         mvc.perform(get("/bookings/{bookingId}", bookingId)
                         .content(objectMapper.writeValueAsString(bookingCreateRequest))
@@ -119,7 +220,7 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -129,7 +230,9 @@ public class BookingControllerTest {
         Integer from = 0;
         Integer size = 10;
 
-        when(bookingClient.getBookingsByBooker(anyLong(), any(BookingState.class), anyInt(), anyInt())).thenReturn(response);
+        when(bookingService.getBookingsByBooker(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(List.of(booking));
+
+        when(bookingMapper.toResponseCollection(anyList())).thenReturn(List.of(bookingResponse));
 
         mvc.perform(get("/bookings")
                         .param("state", status.toString())
@@ -140,28 +243,7 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void getBookingsByBookerTestNotValid() throws Exception {
-
-        String status = "CURRENT";
-        Integer from = -1;
-        Integer size = 10;
-
-        when(bookingClient.getBookingsByBooker(anyLong(), any(BookingState.class), anyInt(), anyInt())).thenReturn(response);
-
-        mvc.perform(get("/bookings")
-                        .param("state", status.toString())
-                        .param("from", from.toString())
-                        .param("size", size.toString())
-                        .content(objectMapper.writeValueAsString(bookingCreateRequest))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.ALL)
-                        .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -171,7 +253,9 @@ public class BookingControllerTest {
         Integer from = 0;
         Integer size = 10;
 
-        when(bookingClient.getBookingsByOwnerItems(anyLong(), any(BookingState.class), anyInt(), anyInt())).thenReturn(response);
+        when(bookingService.getBookingsByOwner(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(List.of(booking));
+
+        when(bookingMapper.toResponseCollection(anyList())).thenReturn(List.of(bookingResponse));
 
         mvc.perform(get("/bookings/owner")
                         .param("state", status.toString())
@@ -182,28 +266,6 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.ALL)
                         .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
-
-    @Test
-    public void getBookingsByOwnerItemsTestNotValid() throws Exception {
-
-        String status = "CURRENT";
-        Integer from = 0;
-        Integer size = 0;
-
-        when(bookingClient.getBookingsByOwnerItems(anyLong(), any(BookingState.class), anyInt(), anyInt())).thenReturn(response);
-
-        mvc.perform(get("/bookings/owner")
-                        .param("state", status.toString())
-                        .param("from", from.toString())
-                        .param("size", size.toString())
-                        .content(objectMapper.writeValueAsString(bookingCreateRequest))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.ALL)
-                        .header(Constants.RESPONSEHEADER, 1L))
-                .andExpect(status().isBadRequest());
-    }
-
 }
