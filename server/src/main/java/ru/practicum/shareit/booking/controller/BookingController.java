@@ -30,7 +30,6 @@ public class BookingController {
     @PostMapping
     public BookingResponse crateBooking(@RequestHeader(Constants.RESPONSEHEADER) Long bookerId,
                                         @RequestBody BookingCreateRequest request) {
-
         log.info("CrateBooking bookerId {} request {}", bookerId, request);
         Booking booking = bookingService.create(request, bookerId);
         ItemResponse itemResponse = itemMapper.toResponse(booking.getItem());
