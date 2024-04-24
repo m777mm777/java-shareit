@@ -2,8 +2,6 @@ package ru.practicum.shareit.itemTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
@@ -18,11 +16,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class CommentMapperTest {
 
-    @Autowired
-    CommentMapper commentMapper;
+    CommentMapper commentMapper = new CommentMapper();
 
     Comment comment;
     CommentResponse commentResponse;

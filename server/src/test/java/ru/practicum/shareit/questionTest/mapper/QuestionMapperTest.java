@@ -2,8 +2,6 @@ package ru.practicum.shareit.questionTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.question.controller.dto.QuestionCreateRequest;
 import ru.practicum.shareit.question.controller.dto.QuestionResponse;
@@ -19,15 +17,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class QuestionMapperTest {
 
-    @Autowired
-    private QuestionMapper questionMapper;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private ItemMapper itemMapper;
+    private UserMapper userMapper = new UserMapper();
+    private ItemMapper itemMapper = new ItemMapper();
+    private QuestionMapper questionMapper = new QuestionMapper(userMapper);
 
     Question question;
     QuestionCreateRequest questionCreateRequest;

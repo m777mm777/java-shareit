@@ -2,8 +2,6 @@ package ru.practicum.shareit.itemTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -15,11 +13,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class ItemMapperTest {
 
-    @Autowired
-    ItemMapper itemMapper;
+    ItemMapper itemMapper = new ItemMapper();
 
     User user;
     Item item;

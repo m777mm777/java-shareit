@@ -2,8 +2,6 @@ package ru.practicum.shareit.BookingTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
@@ -23,15 +21,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+
 public class BookingMapperTest {
 
-    @Autowired
-    private BookingMapper bookingMapper;
-    @Autowired
-    private ItemMapper itemMapper;
-    @Autowired
-    private UserMapper userMapper;
+    private ItemMapper itemMapper = new ItemMapper();
+
+    private UserMapper userMapper = new UserMapper();
+
+    private BookingMapper bookingMapper = new BookingMapper(itemMapper, userMapper);
 
     Booking booking;
     BookingCreateRequest bookingCreateRequest;

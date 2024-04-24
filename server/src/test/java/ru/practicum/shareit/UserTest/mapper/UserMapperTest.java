@@ -2,8 +2,6 @@ package ru.practicum.shareit.UserTest.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.user.controller.dto.UserCreateRequest;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -13,11 +11,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class UserMapperTest {
 
-    @Autowired
-    UserMapper userMapper;
+    UserMapper userMapper = new UserMapper();
 
     User user;
     UserResponse userResponse;
