@@ -30,14 +30,14 @@ public class BookingMapperTest {
 
     private BookingMapper bookingMapper = new BookingMapper(itemMapper, userMapper);
 
-    Booking booking;
-    BookingCreateRequest bookingCreateRequest;
-    BookingResponse bookingResponse;
-    User user;
-    UserResponse userResponse;
-    Item item;
-    ItemResponse itemResponse;
-    LocalDateTime time;
+    private Booking booking;
+    private BookingCreateRequest bookingCreateRequest;
+    private BookingResponse bookingResponse;
+    private User user;
+    private UserResponse userResponse;
+    private Item item;
+    private ItemResponse itemResponse;
+    private LocalDateTime time;
 
     @BeforeEach
     public void create() {

@@ -15,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ItemMapperTest {
 
-    ItemMapper itemMapper = new ItemMapper();
+    private ItemMapper itemMapper = new ItemMapper();
 
-    User user;
-    Item item;
-    ItemResponse itemResponse;
-    ItemCreateRequest request;
+    private User user;
+    private Item item;
+    private ItemResponse itemResponse;
+    private ItemCreateRequest request;
 
     @BeforeEach
     public void create() {

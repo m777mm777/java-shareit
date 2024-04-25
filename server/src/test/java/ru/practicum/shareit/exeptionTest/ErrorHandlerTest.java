@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ErrorHandlerTest {
 
-    ErrorHandler errorHandler = new ErrorHandler();
+    private ErrorHandler errorHandler = new ErrorHandler();
 
     @Test
     public void handleValidationExceptionTest() {

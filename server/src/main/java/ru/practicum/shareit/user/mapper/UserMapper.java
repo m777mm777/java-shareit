@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.controller.dto.UserCreateRequest;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
@@ -9,9 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
-    public UserMapper() {
-    }
 
     public User toUser(UserCreateRequest request) {
         if (request == null) {

@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mvc;
     @MockBean
@@ -35,9 +35,9 @@ public class UserControllerTest {
     @MockBean
     private UserMapper userMapper;
 
-    User user;
-    UserResponse userResponse;
-    UserCreateRequest userCreateRequest;
+    private User user;
+    private UserResponse userResponse;
+    private UserCreateRequest userCreateRequest;
 
     @BeforeEach
     public void startTest() {

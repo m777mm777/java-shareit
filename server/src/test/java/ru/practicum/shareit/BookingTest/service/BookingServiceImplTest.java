@@ -58,19 +58,19 @@ public class BookingServiceImplTest {
     private LocalDateTime time = LocalDateTime.now();
 
     @Mock
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     @Mock
-    ItemServiceImpl itemService;
+    private ItemServiceImpl itemService;
 
     @Mock
-    BookingMapper bookingMapper;
+    private BookingMapper bookingMapper;
 
     @Mock
-    BookingJpaRepository repository;
+    private BookingJpaRepository repository;
 
     @InjectMocks
-    BookingServiceImpl bookingService;
+    private BookingServiceImpl bookingService;
 
     private static final Sort SORT_START_DESC = Sort.by(Sort.Direction.DESC, "start");
     private Pageable page = PageRequest.of(0, 10, SORT_START_DESC);

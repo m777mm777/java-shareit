@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookingControllerTest {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
@@ -65,20 +65,20 @@ public class BookingControllerTest {
     @MockBean
     private UserMapper userMapper;
 
-    LocalDateTime time = LocalDateTime.now();
-    BookingCreateRequest bookingCreateRequest;
-    User user;
-    Item item;
-    Booking booking;
-    BookingResponse bookingResponse;
-    ItemCreateRequest itemCreateRequest;
-    UserResponse userResponse;
-    Question question;
-    QuestionResponse questionResponse;
-    CommentResponse commentResponse;
-    ItemResponse itemResponse;
-    CommentCreateRequest commentCreateRequest;
-    Comment comment;
+    private LocalDateTime time = LocalDateTime.now();
+    private BookingCreateRequest bookingCreateRequest;
+    private User user;
+    private Item item;
+    private Booking booking;
+    private BookingResponse bookingResponse;
+    private ItemCreateRequest itemCreateRequest;
+    private UserResponse userResponse;
+    private Question question;
+    private QuestionResponse questionResponse;
+    private CommentResponse commentResponse;
+    private ItemResponse itemResponse;
+    private CommentCreateRequest commentCreateRequest;
+    private Comment comment;
 
     @BeforeEach
     public void startTest() {

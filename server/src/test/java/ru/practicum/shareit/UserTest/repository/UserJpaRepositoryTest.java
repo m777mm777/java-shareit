@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserJpaRepositoryTest {
 
     @Autowired
-    UserJpaRepository userJpaRepository;
+    private UserJpaRepository userJpaRepository;
 
     private User user;
 

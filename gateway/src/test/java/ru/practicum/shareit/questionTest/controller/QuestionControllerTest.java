@@ -26,14 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class QuestionControllerTest {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mvc;
     @MockBean
     private QuestionClient questionClient;
 
     private QuestionCreateRequest request;
-    ResponseEntity<Object> response;
+    private ResponseEntity<Object> response;
 
     @BeforeEach
     public void startTest() {

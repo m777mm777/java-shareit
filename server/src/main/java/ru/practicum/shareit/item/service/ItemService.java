@@ -11,17 +11,17 @@ import java.util.List;
 
 public interface ItemService {
 
-    public Item createItem(Long userOwnerId, ItemCreateRequest item);
+    Item createItem(Long userOwnerId, ItemCreateRequest item);
 
-    public Item update(Long userOwnerId, Long itemId, Item item);
+    Item update(Long userOwnerId, Long itemId, Item item);
 
-    public ItemResponse findById(Long itemId, Long ownerId);
+    ItemResponse findById(Long itemId, Long ownerId);
 
-    public Item getItemById(Long itemId);
+    Item getItemById(Long itemId);
 
-    public List<ItemResponse> getAllItemsByOwner(Long userOwnerId, Integer from, Integer size);
+    List<ItemResponse> getAllItemsByOwner(Long userOwnerId, Integer from, Integer size);
 
-    public List<Item> searchItem(Long userId, String text, Integer from, Integer size);
+    List<Item> searchItem(Long userId, String text, Integer from, Integer size);
 
-    public CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest comment, LocalDateTime now);
+    CommentResponse createComment(Long authorId, Long itemId, CommentCreateRequest comment, LocalDateTime now);
 }

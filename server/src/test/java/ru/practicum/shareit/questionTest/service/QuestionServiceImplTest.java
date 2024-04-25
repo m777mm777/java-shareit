@@ -7,19 +7,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
 import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
 import ru.practicum.shareit.item.controller.dto.ItemResponse;
-import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentJpaRepository;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.question.controller.dto.QuestionCreateRequest;
 import ru.practicum.shareit.question.controller.dto.QuestionResponse;
 import ru.practicum.shareit.question.mapper.QuestionMapper;
@@ -27,7 +22,6 @@ import ru.practicum.shareit.question.model.Question;
 import ru.practicum.shareit.question.repository.QuestionJpaRepository;
 import ru.practicum.shareit.question.service.QuestionServiceImpl;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -57,35 +51,18 @@ public class QuestionServiceImplTest {
     private static final Sort SORT_CREATED_DESC = Sort.by(Sort.Direction.DESC, "created");
     private Pageable page = PageRequest.of(0, 10, Sort.by("id"));
 
-
-
     @Mock
-    ItemMapper itemMapper;
-
+    private ItemMapper itemMapper;
     @Mock
-    UserMapper userMapper;
-
+    private QuestionMapper questionMapper;
     @Mock
-    BookingMapper bookingMapper;
+    private ItemJpaRepository itemRepository;
     @Mock
-    QuestionMapper questionMapper;
+    private UserService userService;
     @Mock
-    CommentMapper commentMapper;
-    @Mock
-    ItemService itemService;
-    @Mock
-    ItemJpaRepository itemRepository;
-    @Mock
-    UserService userService;
-    @Mock
-    BookingJpaRepository bookingRepository;
-    @Mock
-    CommentJpaRepository commentRepository;
-    @Mock
-    QuestionJpaRepository repository;
-
+    private QuestionJpaRepository repository;
     @InjectMocks
-    QuestionServiceImpl questionService;
+    private QuestionServiceImpl questionService;
 
     @BeforeEach
     public void createObjects() {

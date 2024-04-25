@@ -23,9 +23,9 @@ public class QuestionMapperTest {
     private ItemMapper itemMapper = new ItemMapper();
     private QuestionMapper questionMapper = new QuestionMapper(userMapper);
 
-    Question question;
-    QuestionCreateRequest questionCreateRequest;
-    QuestionResponse questionResponse;
+    private Question question;
+    private QuestionCreateRequest questionCreateRequest;
+    private QuestionResponse questionResponse;
 
     @BeforeEach
     public void create() {

@@ -13,14 +13,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class QuestionResponse {
-
     private Long id;
-
     private String description;
-
     private UserResponse creator;
-
     private LocalDateTime created;
-
     private List<ItemResponse> items;
 }

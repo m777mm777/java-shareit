@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface QuestionJpaRepository extends JpaRepository<Question, Long> {
 
-    public List<Question> findByCreatorId(Long userCreatorId, Sort sort);
+    List<Question> findByCreatorId(Long userCreatorId, Sort sort);
 
-    public Page<Question> findByCreatorIdNot(Long userId, Pageable page);
+    Page<Question> findByCreatorIdNot(Long userId, Pageable page);
 }

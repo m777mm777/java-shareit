@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ValidationBookingTest {
 
     @Autowired
-    ValidateBooking validateBooking;
+    private ValidateBooking validateBooking;
 
-    BookingCreateRequest bookingCreateRequest;
-    LocalDateTime time = LocalDateTime.now();
+    private BookingCreateRequest bookingCreateRequest;
+    private LocalDateTime time = LocalDateTime.now();
 
     @Test
     public void validate_DataTimeNull() {

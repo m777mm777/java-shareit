@@ -8,6 +8,5 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 public class CommentCreateRequest {
-
     private String text;
 }

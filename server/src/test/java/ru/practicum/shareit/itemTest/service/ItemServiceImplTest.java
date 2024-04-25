@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
-import ru.practicum.shareit.booking.bookingMapper.BookingMapper;
 import ru.practicum.shareit.booking.constants.StatusBooking;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
@@ -27,7 +26,6 @@ import ru.practicum.shareit.question.controller.dto.QuestionResponse;
 import ru.practicum.shareit.question.model.Question;
 import ru.practicum.shareit.question.repository.QuestionJpaRepository;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -57,16 +55,8 @@ public class ItemServiceImplTest {
     private static final Sort SORT_START_DESC = Sort.by(Sort.Direction.DESC, "start");
     private Pageable page = PageRequest.of(0, 10, Sort.by("id"));
 
-
-
     @Mock
     ItemMapper itemMapper;
-
-    @Mock
-    UserMapper userMapper;
-
-    @Mock
-    BookingMapper bookingMapper;
 
     @Mock
     CommentMapper commentMapper;

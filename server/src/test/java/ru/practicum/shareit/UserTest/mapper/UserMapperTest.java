@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserMapperTest {
 
-    UserMapper userMapper = new UserMapper();
+    private UserMapper userMapper = new UserMapper();
 
-    User user;
-    UserResponse userResponse;
-    UserCreateRequest userCreateRequest;
+    private User user;
+    private UserResponse userResponse;
+    private UserCreateRequest userCreateRequest;
 
     @BeforeEach
     public void create() {

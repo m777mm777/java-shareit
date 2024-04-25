@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
 import ru.practicum.shareit.item.controller.dto.CommentResponse;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class CommentMapper {
 
     public Comment toComment(CommentCreateRequest request) {

@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ItemControllerTest {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @MockBean
     private ItemClient itemClient;
@@ -35,9 +35,9 @@ public class ItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    ItemCreateRequest request;
-    CommentCreateRequest commentCreateRequest;
-    ResponseEntity<Object> response;
+    private ItemCreateRequest request;
+    private CommentCreateRequest commentCreateRequest;
+    private ResponseEntity<Object> response;
 
     @BeforeEach
     public void startTest() {

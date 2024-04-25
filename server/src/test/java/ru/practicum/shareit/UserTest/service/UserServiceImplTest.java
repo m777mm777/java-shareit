@@ -26,7 +26,7 @@ public class UserServiceImplTest {
     @Mock
     private UserJpaRepository userRepository;
     @InjectMocks
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     private User user;
     private UserResponse userResponse;

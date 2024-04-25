@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommentMapperTest {
 
-    CommentMapper commentMapper = new CommentMapper();
+    private CommentMapper commentMapper = new CommentMapper();
 
-    Comment comment;
-    CommentResponse commentResponse;
-    CommentCreateRequest commentCreateRequest;
+    private Comment comment;
+    private CommentResponse commentResponse;
+    private CommentCreateRequest commentCreateRequest;
 
     @BeforeEach
     public void create() {
